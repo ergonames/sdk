@@ -19,7 +19,7 @@
 - [X] Lookup address ownership
 - [X] Resolve own balance of address
 - [ ] Check registetrations in pending in mempool
-- [ ] Check avialibilty of registration
+- [ ] Check availability of registration
 - [ ] Get total supply of ErgoNames
 
 ### Documentation
