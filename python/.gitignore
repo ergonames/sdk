@@ -1,0 +1,8 @@
+.DS_STORE
+
+__pycache__
+
+dist/
+
+src/ergonames_python.egg-info/
+src/ergonames.egg-info/
