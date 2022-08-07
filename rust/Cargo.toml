@@ -1,6 +1,6 @@
 [package]
 name = "ergonames"
-version = "0.4.3"
+version = "0.4.4"
 edition = "2021"
 description = "A SDK for interacting with ErgoNames using rust."
 documentation = "https://zack-balbin.gitbook.io/ergonames/sdks/rust-sdk"
@@ -13,6 +13,5 @@ license = "MIT"
 
 [dependencies]
 reqwest         = { version = "0.11", features = ["blocking"] }
-anyhow          = "1.0.32"
 serde_json = "1.0"
 chrono = "0.4"

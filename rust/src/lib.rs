@@ -1,8 +1,8 @@
-use anyhow::{Result};
 use serde_json::{Value};
 use chrono::prelude::*;
 use chrono::Utc;
 use std::time::{SystemTime, UNIX_EPOCH, Duration};
+use std::io::Error;
 
 /// Struct for tokens retrieved from API calls
 #[derive(Debug, Clone)]
@@ -12,10 +12,23 @@ pub struct Token {
     pub box_id: String,
 }
 
+impl Token {
+    /// Create a new Token struct
+    pub fn new(name: String, id: String, box_id: String) -> Token {
+        Token {
+            name,
+            id,
+            box_id,
+        }
+    }
+}
+
 /// The default explorer API URL.
 pub const EXPLORER_API_URL: &str = "https://api-testnet.ergoplatform.com/";
 /// The ErgoNames mint address.
 pub const MINT_ADDRESS: &str = "3WycHxEz8ExeEWpUBwvu1FKrpY8YQCiH1S9PfnAvBX1K73BXBXZa";
+/// The ErgoNames mint address as ErgoTree.
+pub const MINT_ADDRESS_ERGO_TREE: &str = "";
 
 /// Checks if the name is a valid ErgoName according to the ErgoName specification.
 pub fn check_name_valid(name: &str) -> bool {
@@ -78,12 +91,38 @@ pub fn check_already_registered(name: &str, explorer_url: Option<String>) -> boo
     }
 }
 
-/// Resolves the owner address of a given ErgoName in the mempool.
+/// Checks if there are any pending transactions for the given ErgoName.
 pub fn check_pending_registration(name: &str, explorer_url: Option<String>) -> Option<String> {
-    todo!();
+    let mempool_transactions: Result<Value, reqwest::Error> = get_mempool_transactions(explorer_url.clone());
+    if mempool_transactions.is_err() {
+        return None;
+    }
+    let mempool_transactions: Value = mempool_transactions.unwrap();
+    let total_amount: usize = mempool_transactions.as_array().unwrap().len();
+    if total_amount == 0 {
+        return None;
+    }
+
+    for tx in mempool_transactions.as_array().unwrap().iter() {
+        let outputs = tx["outputs"].as_array().unwrap();
+        for output in outputs.iter() {
+            let ergo_tree: &str = output["ergoTree"].as_str().unwrap();
+            if ergo_tree == MINT_ADDRESS_ERGO_TREE {
+                for asset in output["assets"].as_array().unwrap().iter() {
+                    let r_name: &str = asset["name"].as_str().unwrap();
+                    if r_name == name {
+                        return Some(tx["id"].as_str().unwrap().to_string());
+                    } 
+                }
+            }
+        }
+    }
+
+
+    return Some("sds".to_string());
 }
 
-/// 
+/// Checks if ErgoName is available for registration.
 pub fn available_for_registration(name: &str, explorer_url: Option<String>) -> bool {
     let ex_clone: Option<String> = explorer_url.clone();
     let resolved_address: Option<String> = resolve_ergoname(name, explorer_url);
@@ -172,97 +211,97 @@ fn remove_quotes(i_str: String) -> String {
 }
 
 /// Reqeusts all tokens on the Ergo network with a given name.
-fn get_token_data(token_name: &str, limit: u64, offset: u64, explorer_url: Option<String>) -> Result<Value> {
+fn get_token_data(token_name: &str, limit: u64, offset: u64, explorer_url: Option<String>) -> Result<Value, reqwest::Error> {
     if explorer_url.is_none() {
         let url: String = format!("{}api/v1/tokens/search?query={}&limit={}&offset={}", EXPLORER_API_URL, token_name, limit, offset);
         let resp: String = reqwest::blocking::get(url)?.text()?;
-        let data: Value = serde_json::from_str(&resp)?;
+        let data: Value = serde_json::from_str(&resp).unwrap();
         return Ok(data);
     } else {
         let url: String = format!("{}api/v1/tokens/search?query={}&limit={}&offset={}", explorer_url.unwrap(), token_name, limit, offset);
         let resp: String = reqwest::blocking::get(url)?.text()?;
-        let data: Value = serde_json::from_str(&resp)?;
+        let data: Value = serde_json::from_str(&resp).unwrap();
         return Ok(data);
     }
 }
 
 /// Requests the infomation for a box by a given box id.
-fn get_box_by_id(box_id: &str, explorer_url: Option<String>) -> Result<Value> {
+fn get_box_by_id(box_id: &str, explorer_url: Option<String>) -> Result<Value, reqwest::Error> {
     if explorer_url.is_none() {
         let url: String = format!("{}api/v1/boxes/{}", EXPLORER_API_URL, box_id);
         let resp: String = reqwest::blocking::get(url)?.text()?;
-        let data: Value = serde_json::from_str(&resp)?;
+        let data: Value = serde_json::from_str(&resp).unwrap();
         return Ok(data);
     } else {
         let url: String = format!("{}api/v1/boxes/{}", explorer_url.unwrap(), box_id);
         let resp: String = reqwest::blocking::get(url)?.text()?;
-        let data: Value = serde_json::from_str(&resp)?;
+        let data: Value = serde_json::from_str(&resp).unwrap();
         return Ok(data);
     }
 }
 
 /// Requests the infomation for a block by a given block id.
-fn get_block_by_id(block_id: &str, explorer_url: Option<String>) -> Result<Value> {
+fn get_block_by_id(block_id: &str, explorer_url: Option<String>) -> Result<Value, reqwest::Error> {
     if explorer_url.is_none() {
         let url: String = format!("{}api/v1/blocks/{}", EXPLORER_API_URL, block_id);
         let resp: String = reqwest::blocking::get(url)?.text()?;
-        let data: Value = serde_json::from_str(&resp)?;
+        let data: Value = serde_json::from_str(&resp).unwrap();
         return Ok(data);
     } else {
         let url: String = format!("{}api/v1/blocks/{}", explorer_url.unwrap(), block_id);
         let resp: String = reqwest::blocking::get(url)?.text()?;
-        let data: Value = serde_json::from_str(&resp)?;
+        let data: Value = serde_json::from_str(&resp).unwrap();
         return Ok(data);
     }
 }
 
 /// Requests all the transactions for a token by a given token id.
-fn get_token_transaction_data(token_id: &str, explorer_url: Option<String>) -> Result<Value> {
+fn get_token_transaction_data(token_id: &str, explorer_url: Option<String>) -> Result<Value, reqwest::Error> {
     if explorer_url.is_none() {
         let url: String = format!("{}api/v1/assets/search/byTokenId?query={}", EXPLORER_API_URL, token_id);
         let resp: String = reqwest::blocking::get(url)?.text()?;
-        let data: Value = serde_json::from_str(&resp)?;
+        let data: Value = serde_json::from_str(&resp).unwrap();
         return Ok(data["items"].to_owned());
     } else {
         let url: String = format!("{}api/v1/assets/search/byTokenId?query={}", explorer_url.unwrap(), token_id);
         let resp: String = reqwest::blocking::get(url)?.text()?;
-        let data: Value = serde_json::from_str(&resp)?;
+        let data: Value = serde_json::from_str(&resp).unwrap();
         return Ok(data["items"].to_owned());
     }
 }
 
 /// Requests a singgular transaction for a token by a given token id.
-fn get_single_transaction_by_token_id(token_id: &str, explorer_url: Option<String>) -> Result<Value> {
+fn get_single_transaction_by_token_id(token_id: &str, explorer_url: Option<String>) -> Result<Value, reqwest::Error> {
     if explorer_url.is_none() {
         let url: String = format!("{}api/v1/assets/search/byTokenId?query={}&limit=1", EXPLORER_API_URL, token_id);
         let resp: String = reqwest::blocking::get(url)?.text()?;
-        let data: Value = serde_json::from_str(&resp)?;
+        let data: Value = serde_json::from_str(&resp).unwrap();
         return Ok(data);
     } else {
         let url: String = format!("{}api/v1/assets/search/byTokenId?query={}&limit=1", explorer_url.unwrap(), token_id);
         let resp: String = reqwest::blocking::get(url)?.text()?;
-        let data: Value = serde_json::from_str(&resp)?;
+        let data: Value = serde_json::from_str(&resp).unwrap();
         return Ok(data);
     }
 }
 
 /// Requests the confirmed balance of an address.
-fn get_address_confirmed_balance(address: &str, explorer_url: Option<String>) -> Result<Value> {
+fn get_address_confirmed_balance(address: &str, explorer_url: Option<String>) -> Result<Value, reqwest::Error> {
     if explorer_url.is_none() {
         let url: String = format!("{}api/v1/addresses/{}/balance/confirmed", EXPLORER_API_URL, address);
         let resp: String = reqwest::blocking::get(url)?.text()?;
-        let data: Value = serde_json::from_str(&resp)?;
+        let data: Value = serde_json::from_str(&resp).unwrap();
         return Ok(data);
     } else {
         let url: String = format!("{}api/v1/addresses/{}/balance/confirmed", explorer_url.unwrap(), address);
         let resp: String = reqwest::blocking::get(url)?.text()?;
-        let data: Value = serde_json::from_str(&resp)?;
+        let data: Value = serde_json::from_str(&resp).unwrap();
         return Ok(data);
     }
 }
 
 /// Combines get_token_data calls into a singular String object.
-fn create_token_data(token_name: &str, explorer_url: Option<String>) -> Result<String> {
+fn create_token_data(token_name: &str, explorer_url: Option<String>) -> Result<String, Error> {
     let total: u64 = get_token_data(&token_name, 1, 0, explorer_url.clone()).unwrap()["total"].to_owned().as_u64().unwrap();
     let needed_calls: u64 = (total / 500) + 1;
     let mut offset: u64 = 0;
@@ -278,17 +317,32 @@ fn create_token_data(token_name: &str, explorer_url: Option<String>) -> Result<S
     }
 }
 
+/// Requests transactions in Ergo network mempool.
+fn get_mempool_transactions(explorer_url: Option<String>) -> Result<Value, reqwest::Error> {
+    if explorer_url.is_none() {
+        let url: String = format!("{}api/v1/mepool/transactions/byAddress/{}", EXPLORER_API_URL, MINT_ADDRESS);
+        let resp: String = reqwest::blocking::get(url)?.text()?;
+        let data: Value = serde_json::from_str(&resp).unwrap();
+        return Ok(data);
+    } else {
+        let explorer_url: String = explorer_url.unwrap();
+        let url: String = format!("{}api/v1/mepool/transactions/byAddress/{}", explorer_url, MINT_ADDRESS);
+        let resp: String = reqwest::blocking::get(url)?.text()?;
+        let data: Value = serde_json::from_str(&resp).unwrap();
+        return Ok(data);
+    }
+}
+
 /// Creates a vector of Tokens from a String object.
 fn create_token_vector(data: String) -> Vec<Token> {
     let data_value: Value = serde_json::from_str(&data).unwrap();
     let mut token_vector: Vec<Token> = Vec::new();
     for i in 0..data_value.as_array().unwrap().len() {
-        let raw = data_value.get(i).unwrap();
-        let tk: Token = Token {
-            name:String::from(remove_quotes(raw["name"].to_string())),
-            id:String::from(remove_quotes(raw["id"].to_string())),
-            box_id:String::from(remove_quotes(raw["boxId"].to_string())),
-        };
+        let raw: &Value = data_value.get(i).unwrap();
+        let name: String = remove_quotes(raw["name"].to_string());
+        let id: String = remove_quotes(raw["id"].to_string());
+        let box_id: String = remove_quotes(raw["boxId"].to_string());
+        let tk: Token = Token::new(name, id, box_id);
         token_vector.push(tk);
     }
     return token_vector
@@ -344,12 +398,11 @@ fn get_address_tokens(address: &str, explorer_url: Option<String>) -> Vec<Value>
 fn convert_to_token_array(data: Vec<Value>) -> Vec<Token> {
     let mut token_vector: Vec<Token> = Vec::new();
     for i in 0..data.len() {
-        let raw = data.get(i).unwrap();
-        let tk: Token = Token {
-            name:String::from(remove_quotes(raw["name"].to_string())),
-            id:String::from(remove_quotes(raw["id"].to_string())),
-            box_id:String::from(remove_quotes(raw["boxId"].to_string())),
-        };
+        let raw: &Value = data.get(i).unwrap();
+        let name: String = remove_quotes(raw["name"].to_string());
+        let id: String = remove_quotes(raw["id"].to_string());
+        let box_id: String = remove_quotes(raw["boxId"].to_string());
+        let tk: Token = Token::new(name, id, box_id);
         token_vector.push(tk);
     }
     return token_vector;
@@ -360,11 +413,10 @@ fn remove_invalid_tokens(token_vector: Vec<Token>) -> Vec<Token> {
     let mut new_token_vector: Vec<Token> = Vec::new();
     for i in 0..token_vector.len() {
         if check_name_valid(&token_vector.get(i).unwrap().name) {
-            let tk = Token {
-                name: token_vector.get(i).unwrap().name.to_string(),
-                id: token_vector.get(i).unwrap().id.to_string(),
-                box_id: token_vector.get(i).unwrap().box_id.to_string(),
-            };
+            let name: String = remove_quotes(token_vector.get(i).unwrap().name.to_string());
+            let id: String = remove_quotes(token_vector.get(i).unwrap().id.to_string());
+            let box_id: String = remove_quotes(token_vector.get(i).unwrap().box_id.to_string());
+            let tk: Token = Token::new(name, id, box_id);
             new_token_vector.push(tk);
         }
     }
@@ -377,11 +429,10 @@ fn check_correct_ownership(token_vector: Vec<Token>, user_address: &str) -> Vec<
     for i in 0..token_vector.len() {
         let token_address = get_box_address(&token_vector.get(i).unwrap().box_id);
         if token_address == user_address {
-            let tk = Token {
-                name: token_vector.get(i).unwrap().name.to_string(),
-                id: token_vector.get(i).unwrap().id.to_string(),
-                box_id: token_vector.get(i).unwrap().box_id.to_string(),
-            };
+            let name: String = remove_quotes(token_vector.get(i).unwrap().name.to_string());
+            let id: String = remove_quotes(token_vector.get(i).unwrap().id.to_string());
+            let box_id: String = remove_quotes(token_vector.get(i).unwrap().box_id.to_string());
+            let tk: Token = Token::new(name, id, box_id);
             new_token_vector.push(tk);
         }
     }
@@ -510,12 +561,11 @@ mod tests {
 
     #[test]
     fn test_reverse_search() {
-        let legit_token = Token {
-            name: String::from("~balb"),
-            id: String::from("2b41b93d22a46de0b0ed9c8b814b766298adbf2ff304f83ee2426f47ac33d9b8"),
-            box_id: String::from("82b9b9773471041f1fa4763dc14e156f6c044e41d99ac7ef34709be4fef7c6d6"),
-        };
-        let mut vec = Vec::<Token>::new();
+        let name: String = "~balb".to_string();
+        let id: String = "2b41b93d22a46de0b0ed9c8b814b766298adbf2ff304f83ee2426f47ac33d9b8".to_string();
+        let box_id: String = "82b9b9773471041f1fa4763dc14e156f6c044e41d99ac7ef34709be4fef7c6d6".to_string();
+        let legit_token: Token = Token::new(name, id, box_id);
+        let mut vec: Vec<Token> = Vec::<Token>::new();
         vec.push(legit_token);
         assert_eq!(vec_compare(reverse_search(ADDRESS, None), Some(vec)), true);
     }
