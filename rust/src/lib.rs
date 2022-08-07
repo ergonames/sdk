@@ -6,7 +6,7 @@ use std::time::{SystemTime, UNIX_EPOCH, Duration};
 
 /// Struct for tokens retrieved from API calls
 #[derive(Debug, Clone)]
-pub struct  Token {
+pub struct Token {
     pub name: String,
     pub id: String,
     pub box_id: String,
@@ -76,6 +76,25 @@ pub fn check_already_registered(name: &str, explorer_url: Option<String>) -> boo
     } else {
         return true;
     }
+}
+
+/// Resolves the owner address of a given ErgoName in the mempool.
+pub fn check_pending_registration(name: &str, explorer_url: Option<String>) -> Option<String> {
+    todo!();
+}
+
+/// 
+pub fn available_for_registration(name: &str, explorer_url: Option<String>) -> bool {
+    let ex_clone: Option<String> = explorer_url.clone();
+    let resolved_address: Option<String> = resolve_ergoname(name, explorer_url);
+    if resolved_address.is_none() {
+        return false;
+    }
+    let pending: Option<String> = check_pending_registration(name, ex_clone);
+    if pending.is_none() {
+        return false;
+    }
+    return true;
 }
 
 /// Returns a list of all ErgoNames owned by an address.
