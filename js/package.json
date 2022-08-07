@@ -1,0 +1,23 @@
+{
+  "name": "ergonames",
+  "version": "0.4.0",
+  "description": "A SDK for resolving ErgoNames.",
+  "main": "index.js",
+  "homepage": "https://ergonames.com/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ergonames/ergo-names-js-sdk"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ergo Names",
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^3.2.0"
+  },
+  "type": "module",
+  "devDependencies": {
+    "lodash": "^4.17.21"
+  }
+}
