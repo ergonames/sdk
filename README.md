@@ -19,8 +19,8 @@
 - [X] Resolve date registered
 - [X] Lookup address ownership
 - [X] Resolve own balance of address
-- [ ] Check registetrations in pending in mempool
-- [ ] Check availability of registration
+- [X] Check registetrations in pending in mempool
+- [X] Check availability of registration
 - [ ] Get total supply of ErgoNames
 
 ### Functional SDKs
