@@ -27,6 +27,8 @@ impl Token {
 pub const EXPLORER_API_URL: &str = "https://api-testnet.ergoplatform.com/";
 /// The ErgoNames mint address.
 pub const MINT_ADDRESS: &str = "3WycHxEz8ExeEWpUBwvu1FKrpY8YQCiH1S9PfnAvBX1K73BXBXZa";
+/// Future contract address.
+pub const CONTRACT_ADDRESS: &str = "3y2HhzAM4nqigycKMtUPFReDG8N9giL3iUcPmq56kF77ACdHfnmmpgGggszjyFrXLLgKj5tgXc6Uib4kaEgD4dATiMzrr1VjGc67JSR9oLHphVp4T7xp8kUK6rBMxVUxbp7wWixiNQAy9HsMUqndUd2p2PygHQEubMKb6pvgDo19EKNc9EpmLYa3JbctDrBzWmTcWUrxdcthKnmnrLzznWMUF17mAnVpKndEEYdW98idFbLEuxFr4fk63qkmiCG7UVwKyy4w5izPNyzkWFxgy6HwJt7VCEM1TNqVRTECGa2oWGno9t";
 /// The ErgoNames mint address as ErgoTree.
 pub const MINT_ADDRESS_ERGO_TREE: &str = "";
 
@@ -117,23 +119,18 @@ pub fn check_pending_registration(name: &str, explorer_url: Option<String>) -> O
             }
         }
     }
-
-
-    return Some("sds".to_string());
+    return None;
 }
 
 /// Checks if ErgoName is available for registration.
 pub fn available_for_registration(name: &str, explorer_url: Option<String>) -> bool {
     let ex_clone: Option<String> = explorer_url.clone();
     let resolved_address: Option<String> = resolve_ergoname(name, explorer_url);
-    if resolved_address.is_none() {
-        return false;
-    }
     let pending: Option<String> = check_pending_registration(name, ex_clone);
-    if pending.is_none() {
-        return false;
+    if resolved_address.is_none() && pending.is_none() {
+        return true;
     }
-    return true;
+    return false;
 }
 
 /// Returns a list of all ErgoNames owned by an address.
@@ -320,13 +317,13 @@ fn create_token_data(token_name: &str, explorer_url: Option<String>) -> Result<S
 /// Requests transactions in Ergo network mempool.
 fn get_mempool_transactions(explorer_url: Option<String>) -> Result<Value, reqwest::Error> {
     if explorer_url.is_none() {
-        let url: String = format!("{}api/v1/mepool/transactions/byAddress/{}", EXPLORER_API_URL, MINT_ADDRESS);
+        let url: String = format!("{}api/v1/mempool/transactions/byAddress/{}", EXPLORER_API_URL, MINT_ADDRESS);
         let resp: String = reqwest::blocking::get(url)?.text()?;
         let data: Value = serde_json::from_str(&resp).unwrap();
         return Ok(data);
     } else {
         let explorer_url: String = explorer_url.unwrap();
-        let url: String = format!("{}api/v1/mepool/transactions/byAddress/{}", explorer_url, MINT_ADDRESS);
+        let url: String = format!("{}api/v1/mempool/transactions/byAddress/{}", explorer_url, MINT_ADDRESS);
         let resp: String = reqwest::blocking::get(url)?.text()?;
         let data: Value = serde_json::from_str(&resp).unwrap();
         return Ok(data);
@@ -477,6 +474,26 @@ mod tests {
     #[test]
     fn test_null_resolve_ergoname() {
         assert_eq!(resolve_ergoname(NULL_NAME, None), None);
+    }
+
+    #[test]
+    fn test_check_pending_registration() {
+        assert_eq!(check_pending_registration(NAME, None), None);
+    }
+
+    #[test]
+    fn test_null_check_pending_registration() {
+        assert_eq!(check_pending_registration(NULL_NAME, None), None);
+    }
+
+    #[test]
+    fn test_available_for_registration() {
+        assert_eq!(available_for_registration(NAME, None), false);
+    }
+
+    #[test]
+    fn test_null_available_for_registration() {
+        assert_eq!(available_for_registration(NULL_NAME, None), true);
     }
 
     #[test]
