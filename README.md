@@ -1,11 +1,12 @@
 # ErgoNames SDKs
 
-### Languages
+### Resolution SDKs
 
 - [JavaScript](https://www.npmjs.com/package/ergonames)
 - [Rust](https://crates.io/crates/ergonames)
 - [Python](https://pypi.org/project/ergonames/)
 - [Scala](https://github.com/ergonames/ergo-names-scala-sdk/packages/1517404)
+
 
 ### Roadmap
 
@@ -21,6 +22,16 @@
 - [ ] Check registetrations in pending in mempool
 - [ ] Check availability of registration
 - [ ] Get total supply of ErgoNames
+
+### Functional SDKs
+
+- [Javascript Tx Lib](https://www.npmjs.com/package/ergonames-tx-lib)
+
+### Roadmap
+
+- [X] Create function for easily creating and submitting transactions
+- [ ] Send to contract address
+- [X] Set registers 4-7
 
 ### Documentation
 
