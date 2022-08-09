@@ -2,6 +2,7 @@ import fetch from "node-fetch";
 
 const EXPLORER_API_URL = "https://api-testnet.ergoplatform.com/";
 const MINT_ADDRESS = "3WycHxEz8ExeEWpUBwvu1FKrpY8YQCiH1S9PfnAvBX1K73BXBXZa";
+const MINT_ADDRESS_ERGO_TREE = "";
 
 export const resolve_ergoname = async (name, explorer_url = EXPLORER_API_URL) => {
     let token_data = await create_token_data(name, explorer_url);
@@ -22,6 +23,41 @@ export const check_already_registered = async (name, explorer_url = EXPLORER_API
         return false;
     }
     return true;
+}
+
+export const check_pending_registration = async (name, explorer_url = EXPLORER_API_URL) => {
+    let mempool_transactions = get_mempool_transactions(explorer_url);
+    if (mempool_transactions == null) {
+        return null;
+    }
+    let total_amount = mempool_transactions.length;
+    if (total_amount == 0) {
+        return null;
+    }
+    for (let i=0; i<total_amount; i++) {
+        let outputs = mempool_transactions[i].outputs;
+        for (let j=0; j<outputs.length; j++) {
+            let ergo_tree = outputs[j].ergoTree;
+            if (ergo_tree == MINT_ADDRESS_ERGO_TREE) {
+                for (let k=0; k<outputs[j].amount.length; k++) {
+                    let r_name = outputs[j].assets[k].name;
+                    if (r_name == name) {
+                        return mempool_transactions[i].id;
+                    }
+                }
+            }
+        }
+    }
+    return null;
+}
+
+export const available_for_registration = async (name, explorer_url = EXPLORER_API_URL) => {
+    let resolved_address = await resolve_ergoname(name, explorer_url);
+    let pending = await check_pending_registration(name, explorer_url);
+    if (resolved_address == null && pending == null) {
+        return true;
+    }
+    return false;
 }
 
 export const check_name_valid = async (name) => {
@@ -120,6 +156,13 @@ async function create_token_data(name, explorer_url = EXPLORER_API_URL) {
         return token_data;
     }
     return null;
+}
+
+async function get_mempool_transactions(explorer_url = EXPLORER_API_URL) {
+    let url = '${explorer_url}/api/v1/mempool/transactions/byAddress{MINT_ADDRESS}';
+    let response = await fetch(url);
+    let json = await response.json();
+    return json;
 }
 
 async function get_token_data(name, limit, offset, explorer_url = EXPLORER_API_URL) {
