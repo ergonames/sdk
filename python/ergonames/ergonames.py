@@ -3,6 +3,7 @@ import requests
 
 EXPLORER_API_URL = "https://api-testnet.ergoplatform.com/"
 MINT_ADDRESS = "3WycHxEz8ExeEWpUBwvu1FKrpY8YQCiH1S9PfnAvBX1K73BXBXZa"
+MINT_ADDRESS_ERGO_TREE = ""
 
 def resolve_ergoname(name, explorer_url = EXPLORER_API_URL):
     token_data = create_token_data(name, explorer_url)
@@ -20,6 +21,28 @@ def check_already_registered(name, explorer_url = EXPLORER_API_URL):
     if address is None:
         return False
     return True
+
+def check_pending_registration(name, explorer_url = EXPLORER_API_URL):
+    mempool_transactions = get_mempool_transactins(explorer_url)
+    if mempool_transactions == None or len(mempool_transactions) == 0:
+        return None
+    for tx in mempool_transactions:
+        for opt in tx["outputs"]:
+            ergo_tree = opt["ergoTree"]
+            if ergo_tree == MINT_ADDRESS_ERGO_TREE:
+                for asset in opt["assets"]:
+                    r_name = asset["name"]
+                    if r_name == name:
+                        return tx["id"]
+    return None
+    
+
+def available_for_registration(name, explorer_url = EXPLORER_API_URL):
+    resolved_address = resolve_ergoname(name)
+    pending = check_pending_registration(name)
+    if resolved_address is None and pending is None:
+        return True
+    return False
 
 def check_name_valid(name):
     for c in name:
@@ -81,6 +104,11 @@ def create_token_data(name, explorer_url = EXPLORER_API_URL):
             data += get_token_data(name, 500, offset, explorer_url)["items"]
             offset += 500
     return data
+
+def get_mempool_transactins(explorer_url = EXPLORER_API_URL):
+    url = explorer_url + "api/v1/mempool/transactions/byAddress" + MINT_ADDRESS
+    response = requests.get(url).json()
+    return response
 
 def get_token_data(name, limit, offset, explorer_url = EXPLORER_API_URL):
     url = explorer_url + "api/v1/tokens/search?query=" + name + "&limit=" + str(limit) + "&offset=" + str(offset)
