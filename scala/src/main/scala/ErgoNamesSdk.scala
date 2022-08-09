@@ -75,6 +75,24 @@ case class Address (
   tokens: List[BalanceToken],
 )
 
+case class Asset (
+  name: String
+)
+
+case class Output (
+  assets: List[Asset],
+)
+
+case class MempoolTransaction (
+  id: String,
+  outputs: List[Output],
+)
+
+case class MempoolResponse (
+  items: List[MempoolTransaction],
+  total: Int,
+)
+
 object MyJsonProtocol extends DefaultJsonProtocol {
   implicit val tokenFormat: RootJsonFormat[Token] = jsonFormat6(Token)
   implicit val balanceTokenFormat: RootJsonFormat[BalanceToken] = jsonFormat3(BalanceToken)
@@ -96,6 +114,7 @@ object ErgoNamesSdk {
 
   val EXPLORER_URL: String = "https://api-testnet.ergoplatform.com/"
   val MINT_ADDRESS: String = "3WycHxEz8ExeEWpUBwvu1FKrpY8YQCiH1S9PfnAvBX1K73BXBXZa"
+  val MINT_ADDRESS_ERGO_TREE: String = ""
 
   def resolveErgoname(name: String, explorerUrl: String = EXPLORER_URL): Option[String] = {
     val token_array = convert_token_info_to_array(name, explorerUrl)
@@ -115,6 +134,36 @@ object ErgoNamesSdk {
       return false
     } else {
       return true
+    }
+  }
+
+  def check_pending_registration(name: String, explorerUrl: String = EXPLORER_URL) = Option[String] {
+    val mempool_data = get_mempool_transactions(explorerUrl)
+    val mempool_transactions = mempool_transactions.items
+    if (mempool_transactions.length == 0) {
+      return None
+    }
+    for (transaction <- mempool_transactions) {
+      val outputs = transaction.outputs
+      for (output <- outputs) {
+        val assets = output.assets
+        for (asset <- assets) {
+          if (asset.name == name) {
+            return Some(transaction.id)
+          }
+        }
+      }
+    }    
+    return None
+  }
+
+  def available_for_registration(name: String, explorerUrl: String = EXPLORER_URL) = bool {
+    val resolved_address: Option[String] = resolveErgoname(name)
+    val pending: bool = check_pending_registration(name)
+    if (resolved_address == None && pending == false) {
+      return true
+    } else {
+      return false
     }
   }
 
@@ -203,6 +252,15 @@ object ErgoNamesSdk {
       }
     }
     true
+  }
+
+  private def get_mempool_transactions(explorerUrl: String = EXPLORER_URL) = MempoolResponse = {
+    val url: String = explorerUrl + "api/v1/mempool/transactions/byAddress/" + MINT_ADDRESS
+    val response = Http(url).asString
+    val body = response.body
+    val json = body.parseJson
+    val mempoolResponseJson = json.convertTo[MempoolResponse]
+    mempoolResponseJson
   }
 
   private def get_token_info(name: String, explorerUrl: String = EXPLORER_URL): TokensResponse = {
