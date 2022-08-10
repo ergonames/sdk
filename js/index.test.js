@@ -28,11 +28,11 @@ const test_null_resolve_ergoname = async () => {
     if (resolved_name === null) {
         passed_amount += 1;
         total_amount += 1;
-        return "Test resolve_ergoname passed";
+        return "Test null_resolve_ergoname passed";
     };
     failed_amount += 1;
     total_amount += 1;
-    return "Test resolve_ergoname failed";
+    return "Test null_resolve_ergoname failed";
 };
 
 const test_check_already_registered = async () => {
@@ -52,11 +52,11 @@ const test_null_check_already_registered = async () => {
     if (already_registered === false) {
         passed_amount += 1;
         total_amount += 1;
-        return "Test check_already_registered passed";
+        return "Test null_check_already_registered passed";
     };
     failed_amount += 1;
     total_amount += 1;
-    return "Test check_already_registered failed";
+    return "Test null_check_already_registered failed";
 };
 
 const test_check_name_valid = async () => {
@@ -76,11 +76,11 @@ const test_null_check_name_valid = async () => {
     if (valid_name === true) {
         passed_amount += 1;
         total_amount += 1;
-        return "Test check_name_valid passed";
+        return "Test null_check_name_valid passed";
     };
     failed_amount += 1;
     total_amount += 1;
-    return "Test check_name_valid failed";
+    return "Test null_check_name_valid failed";
 };
 
 
@@ -101,11 +101,11 @@ const test_null_get_block_id_registered = async () => {
     if (block_id === null) {
         passed_amount += 1;
         total_amount += 1;
-        return "Test get_block_id_registered passed";
+        return "Test null_get_block_id_registered passed";
     };
     failed_amount += 1;
     total_amount += 1;
-    return "Test get_block_id_registered failed";
+    return "Test null_get_block_id_registered failed";
 };
 
 const test_get_block_registered = async () => {
@@ -125,11 +125,11 @@ const test_null_get_block_registered = async () => {
     if (block === null) {
         passed_amount += 1;
         total_amount += 1;
-        return "Test get_block_registered passed";
+        return "Test null_get_block_registered passed";
     };
     failed_amount += 1;
     total_amount += 1;
-    return "Test get_block_registered failed";
+    return "Test null_get_block_registered failed";
 };
 
 const test_get_timestamp_registered = async () => {
@@ -149,11 +149,11 @@ const test_null_get_timestamp_registered = async () => {
     if (timestamp === null) {
         passed_amount += 1;
         total_amount += 1;
-        return "Test get_timestamp_registered passed";
+        return "Test null_get_timestamp_registered passed";
     };
     failed_amount += 1;
     total_amount += 1;
-    return "Test get_timestamp_registered failed";
+    return "Test null_get_timestamp_registered failed";
 };
 
 const test_get_date_registered = async () => {
@@ -173,11 +173,11 @@ const test_null_get_date_registered = async () => {
     if (date === null) {
         passed_amount += 1;
         total_amount += 1;
-        return "Test get_date_registered passed";
+        return "Test null_get_date_registered passed";
     };
     failed_amount += 1;
     total_amount += 1;
-    return "Test get_date_registered failed";
+    return "Test null_get_date_registered failed";
 };
 
 const test_reverse_search = async () => {
@@ -199,11 +199,11 @@ const test_null_reverse_search = async () => {
     if (reverse_search_result === null) {
         passed_amount += 1;
         total_amount += 1;
-        return "Test reverse_search passed";
+        return "Test null_reverse_search passed";
     };
     failed_amount += 1;
     total_amount += 1;
-    return "Test reverse_search failed";
+    return "Test null_reverse_search failed";
 };
 
 const test_get_total_amount_owned = async () => {
@@ -223,11 +223,11 @@ const test_null_get_total_amount_owned = async () => {
     if (total_amount_owned === null) {
         passed_amount += 1;
         total_amount += 1;
-        return "Test get_total_amount_owned passed";
+        return "Test null_get_total_amount_owned passed";
     };
     failed_amount += 1;
     total_amount += 1;
-    return "Test get_total_amount_owned failed";
+    return "Test null_get_total_amount_owned failed";
 };
 
 console.log(await test_resolve_ergoname());

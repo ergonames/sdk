@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+import axios from 'axios';
 
 const EXPLORER_API_URL = "https://api-testnet.ergoplatform.com/";
 const MINT_ADDRESS = "3WycHxEz8ExeEWpUBwvu1FKrpY8YQCiH1S9PfnAvBX1K73BXBXZa";
@@ -160,16 +160,17 @@ async function create_token_data(name, explorer_url = EXPLORER_API_URL) {
 
 async function get_mempool_transactions(explorer_url = EXPLORER_API_URL) {
     let url = '${explorer_url}/api/v1/mempool/transactions/byAddress{MINT_ADDRESS}';
-    let response = await fetch(url);
+    let response = await axios.get(url)
+        .then(res => res.data);
     let json = await response.json();
     return json;
 }
 
 async function get_token_data(name, limit, offset, explorer_url = EXPLORER_API_URL) {
     let url = `${explorer_url}/api/v1/tokens/search?query=${name}&limit=${limit}&offset=${offset}`;
-    let response = await fetch(url);
-    let json = await response.json();
-    return json;
+    let response = await axios.get(url)
+        .then(res => res.data);
+    return response;
 }
 
 async function get_asset_minted_at_address(token_data, explorer_url = EXPLORER_API_URL) {
@@ -192,16 +193,16 @@ async function get_box_address(box_id, explorer_url = EXPLORER_API_URL) {
 
 async function get_box_by_id(box_id, explorer_url = EXPLORER_API_URL) {
     let url = `${explorer_url}/api/v1/boxes/${box_id}`;
-    let response = await fetch(url);
-    let json = await response.json();
-    return json;
+    let response = await axios.get(url)
+        .then(res => res.data);
+    return response;
 }
 
 async function get_token_transaction_data(token_id, explorer_url = EXPLORER_API_URL) {
     let url = `${explorer_url}/api/v1/assets/search/byTokenId?query=${token_id}`;
-    let response = await fetch(url);
-    let json = await response.json();
-    return json.items;
+    let response = await axios.get(url)
+        .then(res => res.data);
+    return response.items;
 }
 
 async function get_last_transaction_for_token(token_transactions) {
@@ -242,9 +243,9 @@ async function get_block_id_from_transaction(data) {
 
 async function get_block_by_id(block_id, explorer_url = EXPLORER_API_URL) {
     let url = `${explorer_url}/api/v1/blocks/${block_id}`;
-    let response = await fetch(url);
-    let json = await response.json();
-    return json;
+    let response = await axios.get(url)
+        .then(res => res.data);
+    return response;
 }
 
 async function get_height_from_block(block_data) {
@@ -263,9 +264,9 @@ async function get_address_tokens(address, explorer_url = EXPLORER_API_URL) {
 
 async function get_address_confirmed_balance(address, explorer_url = EXPLORER_API_URL) {
     let url = `${explorer_url}/api/v1/addresses/${address}/balance/confirmed`;
-    let response = await fetch(url);
-    let json = await response.json();
-    return json;
+    let response = await axios.get(url)
+        .then(res => res.data);
+    return response;
 }
 
 async function remove_invalid_tokens(token_data) {
