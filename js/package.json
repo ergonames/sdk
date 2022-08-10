@@ -1,6 +1,6 @@
 {
   "name": "ergonames",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "A SDK for resolving ErgoNames.",
   "main": "index.js",
   "homepage": "https://ergonames.com/",
@@ -14,7 +14,15 @@
   "author": "Ergo Names",
   "license": "MIT",
   "dependencies": {
-    "node-fetch": "^3.2.0"
+    "buffer": "^6.0.3",
+    "http": "^0.0.1-security",
+    "https": "^1.0.0",
+    "net": "^1.0.2",
+    "node-fetch": "^3.2.0",
+    "stream": "^0.0.2",
+    "url": "^0.11.0",
+    "util": "^0.12.4",
+    "zlib": "^1.0.5"
   },
   "type": "module",
   "devDependencies": {
