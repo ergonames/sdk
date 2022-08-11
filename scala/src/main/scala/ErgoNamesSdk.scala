@@ -137,7 +137,7 @@ object ErgoNamesSdk {
     }
   }
 
-  def check_pending_registration(name: String, explorerUrl: String = EXPLORER_URL) = Option[String] {
+  def check_pending_registration(name: String, explorerUrl: String = EXPLORER_URL): Option[String] = {
     val mempool_data = get_mempool_transactions(explorerUrl)
     val mempool_transactions = mempool_transactions.items
     if (mempool_transactions.length == 0) {
@@ -157,7 +157,7 @@ object ErgoNamesSdk {
     return None
   }
 
-  def available_for_registration(name: String, explorerUrl: String = EXPLORER_URL) = bool {
+  def available_for_registration(name: String, explorerUrl: String = EXPLORER_URL): bool = {
     val resolved_address: Option[String] = resolveErgoname(name)
     val pending: bool = check_pending_registration(name)
     if (resolved_address == None && pending == false) {
@@ -254,7 +254,7 @@ object ErgoNamesSdk {
     true
   }
 
-  private def get_mempool_transactions(explorerUrl: String = EXPLORER_URL) = MempoolResponse = {
+  private def get_mempool_transactions(explorerUrl: String = EXPLORER_URL): MempoolResponse = {
     val url: String = explorerUrl + "api/v1/mempool/transactions/byAddress/" + MINT_ADDRESS
     val response = Http(url).asString
     val body = response.body
