@@ -2,10 +2,10 @@
 
 ### Resolution SDKs
 
-- [JavaScript](https://www.npmjs.com/package/ergonames)
-- [Rust](https://crates.io/crates/ergonames)
-- [Python](https://pypi.org/project/ergonames/)
-- [Scala](https://github.com/ergonames/ergo-names-scala-sdk/packages/1517404)
+- [JavaScript](https://www.npmjs.com/package/ergonames) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwyl/auth_plug/Elixir%20CI?label=build&style=flat-square)
+- [Rust](https://crates.io/crates/ergonames) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwyl/auth_plug/Elixir%20CI?label=build&style=flat-square)
+- [Python](https://pypi.org/project/ergonames/) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwyl/auth_plug/Elixir%20CI?label=build&style=flat-square)
+- [Scala](https://github.com/ergonames/ergo-names-scala-sdk/packages/1517404) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwyl/auth_plug/Elixir%20CI?label=build&style=flat-square)
 
 
 ### Roadmap
@@ -25,7 +25,7 @@
 
 ### Functional SDKs
 
-- [Javascript Tx Lib](https://www.npmjs.com/package/ergonames-tx-lib)
+- [Javascript Tx Lib](https://www.npmjs.com/package/ergonames-tx-lib) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwyl/auth_plug/Elixir%20CI?label=build&style=flat-square)
 
 ### Roadmap
 
