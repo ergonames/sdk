@@ -54,8 +54,18 @@ pub fn check_name_valid(name: &str) -> bool {
 }
 
 /// Reformats the name to be valid ErgoName according to the ErgoName specification.
-pub fn reformat_name(name: &str) -> String {
-    return name.to_lowercase();
+pub fn reformat_name(name: &str) -> Option<String> {
+    let name_valid: bool = check_name_valid(name);
+    if !name_valid {
+        return None;
+    }
+    let mut new_name: String = String::new();
+    let first_char: char = name.chars().next().unwrap();
+    if first_char != '~' {
+        new_name.push('~');
+    }
+    new_name.push_str(&name);
+    return Some(new_name);
 }
 
 /// Returns the price of a given ErgoName in ergs.
@@ -64,7 +74,7 @@ pub fn check_name_price(name: &str) -> Option<i32> {
     if !valid {
         return None;
     }
-    let _: String = reformat_name(name);
+    let _: String = reformat_name(name).unwrap();
     return Some(0);
 }
 
@@ -157,12 +167,12 @@ pub fn get_total_amount_owned(address: &str, explorer_url: Option<String>) -> Op
 
 /// Returns the block id that an ErgoName was registered at.
 pub fn get_block_id_registered(name: &str, explorer_url: Option<String>) -> Option<String> {
-    let token_data: String = create_token_data(&name, explorer_url).unwrap();
+    let token_data: String = create_token_data(&name, explorer_url.clone()).unwrap();
     if token_data != "None" {
         let token_vector: Vec<Token> = create_token_vector(token_data);
         let token_id: String = get_asset_minted_at_address(token_vector);
-        let first_transaction: Value = get_single_transaction_by_token_id(&token_id, None).unwrap();
-        let block_id: String = get_block_id_from_transaction(first_transaction);
+        let first_transaction: Value = get_first_transaction_for_token(&token_id);
+        let block_id: String = remove_quotes(first_transaction["headerId"].clone().to_string());
         return Some(block_id);
     }
     return None;
@@ -267,21 +277,6 @@ fn get_token_transaction_data(token_id: &str, explorer_url: Option<String>) -> R
     }
 }
 
-/// Requests a singgular transaction for a token by a given token id.
-fn get_single_transaction_by_token_id(token_id: &str, explorer_url: Option<String>) -> Result<Value, reqwest::Error> {
-    if explorer_url.is_none() {
-        let url: String = format!("{}api/v1/assets/search/byTokenId?query={}&limit=1", EXPLORER_API_URL, token_id);
-        let resp: String = reqwest::blocking::get(url)?.text()?;
-        let data: Value = serde_json::from_str(&resp).unwrap();
-        return Ok(data);
-    } else {
-        let url: String = format!("{}api/v1/assets/search/byTokenId?query={}&limit=1", explorer_url.unwrap(), token_id);
-        let resp: String = reqwest::blocking::get(url)?.text()?;
-        let data: Value = serde_json::from_str(&resp).unwrap();
-        return Ok(data);
-    }
-}
-
 /// Requests the confirmed balance of an address.
 fn get_address_confirmed_balance(address: &str, explorer_url: Option<String>) -> Result<Value, reqwest::Error> {
     if explorer_url.is_none() {
@@ -363,6 +358,22 @@ fn get_box_address(box_id: &str) -> String {
     return address;
 }
 
+/// Requests the first transaction for a token by a given token id.
+fn get_first_transaction_for_token(token_id: &str) -> Value {
+    let token_transactions: Value = get_token_transaction_data(token_id, None).unwrap();
+    let mut lastest_transaction: Value = Value::Null;
+    let mut creation_height: u64 = u64::MAX;
+    for tx in token_transactions.as_array().unwrap() {
+        let box_id = remove_quotes(tx["boxId"].to_string());
+        let box_info = get_box_by_id(&box_id, None).unwrap();
+        if box_info["creationHeight"].as_u64().unwrap() < creation_height {
+            creation_height = box_info["creationHeight"].to_owned().as_u64().unwrap();
+            lastest_transaction = tx.to_owned();
+        }
+    }
+    return lastest_transaction;
+}
+
 /// Requests the last transaction for a token by a given token id.
 fn get_last_transaction_for_token(data: Value) -> Value {
     let mut lastest_transaction: Value = Value::Null;
@@ -434,12 +445,6 @@ fn check_correct_ownership(token_vector: Vec<Token>, user_address: &str) -> Vec<
         }
     }
     return token_vector;
-}
-
-/// Returns the block id for a transaction by a given transaction id.
-fn get_block_id_from_transaction(transaction_data: Value) -> String {
-    let block_id: String = transaction_data["items"][0]["headerId"].to_string();
-    return remove_quotes(block_id);
 }
 
 /// Returns the height of the block for a transaction by a given transaction id.
@@ -524,6 +529,16 @@ mod tests {
     #[test]
     fn test_null_check_name_price() {
         assert_eq!(check_name_price(INVALID_NAME), None);
+    }
+
+    #[test]
+    fn test_reformat_name() {
+        assert_eq!(reformat_name("balb").unwrap(), "~balb");
+    }
+
+    #[test]
+    fn test_null_reformat_name() {
+        assert_eq!(reformat_name("balb*"), None);
     }
 
     #[test]
