@@ -7,7 +7,6 @@
 - [Python](https://pypi.org/project/ergonames/) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwyl/auth_plug/Elixir%20CI?label=build&style=flat-square)
 - [Scala](https://github.com/ergonames/ergo-names-scala-sdk/packages/1517404) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwyl/auth_plug/Elixir%20CI?label=build&style=flat-square)
 
-
 ### Roadmap
 
 - [X] Resolve ErgoNames
