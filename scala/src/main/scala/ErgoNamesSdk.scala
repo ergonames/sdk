@@ -106,6 +106,10 @@ object MyJsonProtocol extends DefaultJsonProtocol {
   implicit val transactionFormat: RootJsonFormat[Transaction] = jsonFormat2(Transaction)
   implicit val transactionsResponseFormat: RootJsonFormat[TransactionsResponse] = jsonFormat2(TransactionsResponse)
   implicit val addressFormat: RootJsonFormat[Address] = jsonFormat2(Address)
+  implicit val assetFormat: RootJsonFormat[Asset] = jsonFormat1(Asset)
+  implicit val outputFormat: RootJsonFormat[Output] = jsonFormat1(Output)
+  implicit val mempoolTransactionFormat: RootJsonFormat[MempoolTransaction] = jsonFormat2(MempoolTransaction)
+  implicit val mempoolResponseFormat: RootJsonFormat[MempoolResponse] = jsonFormat2(MempoolResponse)
 }
 
 import MyJsonProtocol._
@@ -139,7 +143,7 @@ object ErgoNamesSdk {
 
   def check_pending_registration(name: String, explorerUrl: String = EXPLORER_URL): Option[String] = {
     val mempool_data = get_mempool_transactions(explorerUrl)
-    val mempool_transactions = mempool_transactions.items
+    val mempool_transactions = mempool_data.items
     if (mempool_transactions.length == 0) {
       return None
     }
@@ -157,9 +161,9 @@ object ErgoNamesSdk {
     return None
   }
 
-  def available_for_registration(name: String, explorerUrl: String = EXPLORER_URL): bool = {
+  def available_for_registration(name: String, explorerUrl: String = EXPLORER_URL): Boolean = {
     val resolved_address: Option[String] = resolveErgoname(name)
-    val pending: bool = check_pending_registration(name)
+    val pending: Boolean = check_pending_registration(name)
     if (resolved_address == None && pending == false) {
       return true
     } else {
