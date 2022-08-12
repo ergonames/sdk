@@ -163,12 +163,13 @@ object ErgoNamesSdk {
 
   def available_for_registration(name: String, explorerUrl: String = EXPLORER_URL): Boolean = {
     val resolved_address: Option[String] = resolveErgoname(name)
-    val pending: Boolean = check_pending_registration(name)
-    if (resolved_address == None && pending == false) {
+    val pending: Option[String] = check_pending_registration(name)
+    if (resolved_address == None && pending == None) {
       return true
     } else {
       return false
     }
+    return false
   }
 
   def reverse_search(address: String, explorerUrl: String = EXPLORER_URL): Option[Array[BalanceToken]] = {
