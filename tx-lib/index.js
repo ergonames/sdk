@@ -2,7 +2,7 @@ import * as wasm from "ergo-lib-wasm-browser";
 import JSONBigInt from "json-bigint";
 
 const DEFAULT_EXPLORER_URL = "https://api-testnet.ergoplatform.com";
-const ERGONAMES_CONTRACT_ADDRESS = "3WycHxEz8ExeEWpUBwvu1FKrpY8YQCiH1S9PfnAvBX1K73BXBXZa";
+const ERGONAMES_CONTRACT_ADDRESS = "E6GgjuJFZjL31Srt3CBsCfmF7mWMLHR4z4sDWsB6MsFxBcKAaD2cqSLEB25rfJZatMrZgpDLdVVVzLC55uVHqmBuWFCQKM8NB9cHp1uRkufkQ85nvVNtWpVi7wwW5WWSchjDAFvabEYgGmeAP5YQdYTdxmN5SVzoDQwzibjAD68GWsNKsmQQJm8ScS9hndLAAGkUWhTm4C6uxFURagxnMdHMJuDqHKnkLXAu1p6RJKLAg6VdktTJLPNFeMdy1q18J8A2LZtMuvKNkkne1ZpL5BmQhtjLPMw2XnhfPaCUKjEHiPZfo9q";
 const ROYALTY_PERCENTAGE = 20;
 
 async function get_current_height(explorer_url = DEFAULT_EXPLORER_URL) {
