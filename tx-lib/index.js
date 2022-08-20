@@ -61,9 +61,9 @@ export async function send_transaction(ergoname_price, ergoname_name, reciever_a
                 creationHeight);
 
             outBoxBuilder.set_register_value(4, wasm.Constant.from_i32(ROYALTY_PERCENTAGE));
-            outBoxBuilder.set_register_value(5, wasm.Constant.from_byte_array(ergoname_name));
+            outBoxBuilder.set_register_value(5, wasm.Constant.from_byte_array(ergoname_name).encode_to_base16());
             outBoxBuilder.set_register_value(6, wasm.Constant.from_i32(ergoname_price));
-            outBoxBuilder.set_register_value(7, wasm.Constant.from_byte_array(reciever_address));
+            outBoxBuilder.set_register_value(7, wasm.Constant.from_byte_array(reciever_address).encode_to_base16());
 
             try {
                 outputCandidates.add(outBoxBuilder.build());
