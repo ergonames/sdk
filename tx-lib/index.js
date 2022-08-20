@@ -60,8 +60,8 @@ export async function send_transaction(ergoname_price, ergoname_name, reciever_a
                 wasm.Contract.pay_to_address(wasm.Address.from_base58(ERGONAMES_CONTRACT_ADDRESS)),
                 creationHeight);
 
-            let reciever_address = wasm.Address.from_mainnet_str(reciever_address);
-            let reciever_ergotree = reciever_address.to_ergo_tree();
+            let reciever_address_type = wasm.Address.from_mainnet_str(reciever_address);
+            let reciever_ergotree = reciever_address_type.to_ergo_tree();
 
             outBoxBuilder.set_register_value(4, wasm.Constant.from_i32(ROYALTY_PERCENTAGE));
             outBoxBuilder.set_register_value(5, wasm.Constant.from_byte_array(ergoname_name));
