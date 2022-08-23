@@ -6,18 +6,16 @@
     "module": "module",
     "homepage": "https://ergonames.com/",
     "repository": {
-      "type": "git",
-      "url": "https://github.com/ergonames/transaction-builder"
+        "type": "git",
+        "url": "https://github.com/ergonames/transaction-builder"
     },
     "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "Ergo Names",
     "license": "MIT",
     "dependencies": {
-      "assert": "^2.0.0",
-      "buffer": "^6.0.3",
-      "ergo-lib-wasm-browser": "^0.19.0",
-      "json-bigint": "^1.0.0"
+        "ergo-lib-wasm-browser": "^0.19.0",
+        "json-bigint": "^1.0.0"
     }
 }
