@@ -29,7 +29,7 @@
 ### Roadmap
 
 - [X] Create function for easily creating and submitting transactions
-- [ ] Send to contract address
+- [X] Send to contract address
 - [X] Set registers 4-7
 
 ### Documentation
