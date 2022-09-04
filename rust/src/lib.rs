@@ -24,11 +24,9 @@ impl Token {
 }
 
 /// The default explorer API URL.
-pub const EXPLORER_API_URL: &str = "https://api-testnet.ergoplatform.com/";
+pub const EXPLORER_API_URL: &str = "http://69.164.215.107:8080/";
 /// The ErgoNames mint address.
-pub const MINT_ADDRESS: &str = "3WycHxEz8ExeEWpUBwvu1FKrpY8YQCiH1S9PfnAvBX1K73BXBXZa";
-/// Future contract address.
-pub const CONTRACT_ADDRESS: &str = "3y2HhzAM4nqigycKMtUPFReDG8N9giL3iUcPmq56kF77ACdHfnmmpgGggszjyFrXLLgKj5tgXc6Uib4kaEgD4dATiMzrr1VjGc67JSR9oLHphVp4T7xp8kUK6rBMxVUxbp7wWixiNQAy9HsMUqndUd2p2PygHQEubMKb6pvgDo19EKNc9EpmLYa3JbctDrBzWmTcWUrxdcthKnmnrLzznWMUF17mAnVpKndEEYdW98idFbLEuxFr4fk63qkmiCG7UVwKyy4w5izPNyzkWFxgy6HwJt7VCEM1TNqVRTECGa2oWGno9t";
+pub const MINT_ADDRESS: &str = "3y2HhzAM4nqigycKMtUPFReDG8N9giL3iUcPmq56kF77ACdHfnmmpgGggszjyFrXLLgKj5tgXc6Uib4kaEgD4dATiMzrr1VjGc67JSR9oLHphVp4T7xp8kUK6rBMxVUxbp7wWixiNQAy9HsMUqndUd2p2PygHQEubMKb6pvgDo19EKNc9EpmLYa3JbctDrBzWmTcWUrxdcthKnmnrLzznWMUF17mAnVpKndEEYdW98idFbLEuxFr4fk63qkmiCG7UVwKyy4w5izPNyzkWFxgy6HwJt7VCEM1TNqVRTECGa2oWGno9t";
 /// The ErgoNames mint address as ErgoTree.
 pub const MINT_ADDRESS_ERGO_TREE: &str = "";
 
