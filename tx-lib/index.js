@@ -1,8 +1,8 @@
 import * as wasm from "ergo-lib-wasm-browser";
 import JSONBigInt from "json-bigint";
 
-const DEFAULT_EXPLORER_URL = "https://api-testnet.ergoplatform.com";
-const ERGONAMES_CONTRACT_ADDRESS = "E6GgjuJFZjL31Srt3CBsCfmF7mWMLHR4z4sDWsB6MsFxBcKAaD2cqSLEB25rfJZatMrZgpDLdVVVzLC55uVHqmBuWFCQKM8NB9cHp1uRkufkQ85nvVNtWpVi7wwW5WWSchjDAFvabEYgGmeAP5YQdYTdxmN5SVzoDQwzibjAD68GWsNKsmQQJm8ScS9hndLAAGkUWhTm4C6uxFURagxnMdHMJuDqHKnkLXAu1p6RJKLAg6VdktTJLPNFeMdy1q18J8A2LZtMuvKNkkne1ZpL5BmQhtjLPMw2XnhfPaCUKjEHiPZfo9q";
+const DEFAULT_EXPLORER_URL = "http://69.164.215.107:8080";
+const ERGONAMES_CONTRACT_ADDRESS = "3y2HhzAM4nqigycKEUtfFywbQdy1BX4mdZHMcKe86nr9JnyCAVTte3iYoHMDyofeayzsBXcy4RAa196ecT6mBS4SjamQfRoghbaKhnmNbtysbhoCURrFrrvAhgqKZG66m2iieWTRE6S41Dk6zzBWZC6nFPskjAkHyweTuXysWiNnJM8MZw5uQ2Gzevxzvab5dbcVRVsqL7cG9anp7Lt7NHBdKHqZpR5nL3Lx9W6aR4BTD9hX3Ln2cHtVZnXbmdrJjgC1J17XaocFLUXT2ZhC3PBzAu2p5yMWrkQ4tbv3V1PXN6xJeA";
 const ROYALTY_PERCENTAGE = 20;
     
 async function get_current_height(explorer_url = DEFAULT_EXPLORER_URL) {
@@ -35,7 +35,7 @@ export async function send_transaction(ergoname_price, ergoname_name, reciever_a
             const creationHeight = await get_current_height(explorer_url);
             console.log(creationHeight);
 
-            const amountToSend = BigInt(ergoname_price);
+            const amountToSend = BigInt(ergoname_price + 20000000);
             const amountToSendBoxValue = wasm.BoxValue.from_i64(wasm.I64.from_str(amountToSend.toString()));
             const utxos = await getUtxos(amountToSend);
             let utxosValue = utxos.reduce((acc, utxo) => acc += BigInt(utxo.value), BigInt(0));
