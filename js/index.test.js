@@ -2,9 +2,10 @@ import { resolve_ergoname, check_already_registered, check_name_valid, get_block
 import pkg from 'lodash';
 const { isEqual } = pkg;
 
-const name = "~balb";
+const name = "~api_mint_3";
 const null_name = "~zack";
-const address = "3WwKzFjZGrtKAV7qSCoJsZK9iJhLLrUa3uwd4yw52bVtDVv6j5TL";
+const address = "3WxSZYxata5rWu6tch2JD2KHBbKDtfFrysQucmhEc6fbSHkqPEnY";
+const address_two = "3WwKzFjZGrtKAV7qSCoJsZK9iJhLLrUa3uwd4yw52bVtDVv6j5TL";
 const null_address = "3Wxf2LxF8HUSzfnT6bDGGUDNp1YMvWo5JWxjeSpszuV6w6UJGLSf";
 
 let passed_amount = 0;
@@ -107,7 +108,7 @@ const test_get_block_id_registered = async () => {
     const block_id = await get_block_id_registered(name);
     let end_timestamp = Date.now();
     let time_taken = end_timestamp - start_timestamp;
-    if (block_id === "a5e0ab7f95142ceee7f3b6b5a5318153b345292e9aaae7c56825da115e196d08") {
+    if (block_id === "60f9e629fd82d1218dd9d1513e544fb63feb74586ded6db7a703eae7362040ef") {
         passed_amount += 1;
         total_amount += 1;
         return "Test get_block_id_registered passed in " + time_taken + " milliseconds";
@@ -137,7 +138,7 @@ const test_get_block_registered = async () => {
     const block = await get_block_registered(name);
     let end_timestamp = Date.now();
     let time_taken = end_timestamp - start_timestamp;
-    if (block === 60761) {
+    if (block === 1615) {
         passed_amount += 1;
         total_amount += 1;
         return "Test get_block_registered passed in " + time_taken + " milliseconds";
@@ -167,7 +168,7 @@ const test_get_timestamp_registered = async () => {
     const timestamp = await get_timestamp_registered(name);
     let end_timestamp = Date.now();
     let time_taken = end_timestamp - start_timestamp;
-    if (timestamp === 1656968987794) {
+    if (timestamp === 1662328709308) {
         passed_amount += 1;
         total_amount += 1;
         return "Test get_timestamp_registered passed in " + time_taken + " milliseconds";
@@ -197,7 +198,7 @@ const test_get_date_registered = async () => {
     const date = await get_date_registered(name);
     let end_timestamp = Date.now();
     let time_taken = end_timestamp - start_timestamp;
-    if (date === "7/4/2022") {
+    if (date === "9/4/2022") {
         passed_amount += 1;
         total_amount += 1;
         return "Test get_date_registered passed in " + time_taken + " milliseconds";
