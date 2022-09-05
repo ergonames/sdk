@@ -342,6 +342,7 @@ fn create_token_vector(data: String) -> Vec<Token> {
 fn get_asset_minted_at_address(token_vector: Vec<Token>) -> String{
     for i in token_vector {
         let address: String = get_box_address(&i.box_id);
+        println!("{}", address);
         if address == MINT_ADDRESS.to_owned() {
             return i.id;
         }
@@ -463,15 +464,16 @@ fn get_timestamp_from_transaction(block_id: &str) -> String {
 mod tests {
     use crate::*;
 
-    const NAME: &str = "~balb";
+    const NAME: &str = "~api_mint_3";
     const NULL_NAME: &str = "~zack";
     const INVALID_NAME: &str =  "~balb+=]}/";
-    const ADDRESS: &str = "3WwKzFjZGrtKAV7qSCoJsZK9iJhLLrUa3uwd4yw52bVtDVv6j5TL";
+    const ADDRESS: &str = "3WxSZYxata5rWu6tch2JD2KHBbKDtfFrysQucmhEc6fbSHkqPEnY";
+    // const ADDRESS_TWO: &str = "3WwKzFjZGrtKAV7qSCoJsZK9iJhLLrUa3uwd4yw52bVtDVv6j5TL";
     const NULL_ADDRESS: &str = "3Wxf2LxF8HUSzfnT6bDGGUDNp1YMvWo5JWxjeSpszuV6w6UJGLSf";
 
     #[test]
     fn test_resolve_ergoname() {
-        assert_eq!(resolve_ergoname(NAME, None).unwrap(), "3WwKzFjZGrtKAV7qSCoJsZK9iJhLLrUa3uwd4yw52bVtDVv6j5TL");
+        assert_eq!(resolve_ergoname(NAME, None).unwrap(), ADDRESS);
     }
 
     #[test]
@@ -541,7 +543,7 @@ mod tests {
 
     #[test]
     fn test_get_block_id_registered() {
-        assert_eq!(get_block_id_registered(NAME, None).unwrap(), "a5e0ab7f95142ceee7f3b6b5a5318153b345292e9aaae7c56825da115e196d08");
+        assert_eq!(get_block_id_registered(NAME, None).unwrap(), "60f9e629fd82d1218dd9d1513e544fb63feb74586ded6db7a703eae7362040ef");
     }
 
     #[test]
@@ -551,7 +553,7 @@ mod tests {
 
     #[test]
     fn test_get_block_registered() {
-        assert_eq!(get_block_registered(NAME, None).unwrap(), 60761);
+        assert_eq!(get_block_registered(NAME, None).unwrap(), 1615);
     }
 
     #[test]
@@ -561,7 +563,7 @@ mod tests {
 
     #[test]
     fn test_get_timestamp_registered() {
-        assert_eq!(get_timestamp_registered(NAME, None).unwrap(), 1656968987794);
+        assert_eq!(get_timestamp_registered(NAME, None).unwrap(), 1662328709308);
     }
 
     #[test]
@@ -571,7 +573,7 @@ mod tests {
 
     #[test]
     fn test_get_date_registered() {
-        assert_eq!(get_date_registerd(NAME, None).unwrap(), "2022-07-04");
+        assert_eq!(get_date_registerd(NAME, None).unwrap(), "2022-09-04");
     }
 
     #[test]
