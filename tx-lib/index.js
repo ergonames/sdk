@@ -13,8 +13,8 @@ async function get_current_height(explorer_url = DEFAULT_EXPLORER_URL) {
 }
 
 export async function send_transaction(ergoname_price, ergoname_name, reciever_address, explorer_url = DEFAULT_EXPLORER_URL) {
-    ergoConnector.nautilus.connect().then(() => {
-        ergo.get_balance().then(async function() {
+    let tx_info = ergoConnector.nautilus.connect().then(() => {
+        let tx_info = ergo.get_balance().then(async function() {
             async function getUtxos(amountToSend) {
                 const fee = BigInt(wasm.TxBuilder.SUGGESTED_TX_FEE().as_i64().to_str());
                 const fullAmount = BigInt(1000) * amountToSend + fee;
@@ -108,7 +108,7 @@ export async function send_transaction(ergoname_price, ergoname_name, reciever_a
                     extension: {}
                 };
             });
-            console.log(`${JSONBigInt.stringify(correctTx)}`);                    
+            console.log(`${JSONBigInt.stringify(correctTx)}`);
 
             async function signTx(txToBeSigned) {
                 try {
@@ -139,6 +139,7 @@ export async function send_transaction(ergoname_price, ergoname_name, reciever_a
                     console.log(`No signed tx`);
                     return null;
                 }
+                let ouput_one_box_id = signedTx.outputs[0].boxId;
                 msg("Transaction signed - awaiting submission");
                 const txId = await submitTx(signedTx);
                 if (!txId) {
@@ -146,15 +147,17 @@ export async function send_transaction(ergoname_price, ergoname_name, reciever_a
                     return null;
                 }
                 msg("Transaction submitted - thank you for your donation!");
-                return txId;
+                return [txId, ouput_one_box_id];
             }
 
-            let txId = processTx(correctTx).then(txId => {
-                return txId;
+            let tx_info = await processTx(correctTx).then(tx_info => {
+                return tx_info;
             });
-            return txId;
+            return tx_info;
         });
+        return tx_info;
     });
+    return tx_info;
 }
 
 function parseTransactionData(str) {
