@@ -35,7 +35,7 @@ export async function send_transaction(ergoname_price, ergoname_name, reciever_a
             const creationHeight = await get_current_height(explorer_url);
             console.log(creationHeight);
 
-            const amountToSend = BigInt(ergoname_price + 20000000);
+            const amountToSend = BigInt(ergoname_price);
             const amountToSendBoxValue = wasm.BoxValue.from_i64(wasm.I64.from_str(amountToSend.toString()));
             const utxos = await getUtxos(amountToSend);
             let utxosValue = utxos.reduce((acc, utxo) => acc += BigInt(utxo.value), BigInt(0));
@@ -60,16 +60,16 @@ export async function send_transaction(ergoname_price, ergoname_name, reciever_a
                 wasm.Contract.pay_to_address(wasm.Address.from_base58(ERGONAMES_CONTRACT_ADDRESS)),
                 creationHeight);
 
-            let ergoname_name_bytes = new TextEncoder().encode(ergoname_name);
+            let ergoname_name_bytes = Uint8Array.from(Buffer.from(ergoname_name, 'utf8'));
 
             let reciever_address_type = wasm.Address.from_testnet_str(reciever_address);
             let reciever_address_ergotree = reciever_address_type.to_ergo_tree();
-            let template_bytes = reciever_address_ergotree.template_bytes();
-
+            let reciever_address_bytes = reciever_address_ergotree.sigma_serialize_bytes();
+            
             outBoxBuilder.set_register_value(4, wasm.Constant.from_i32(ROYALTY_PERCENTAGE));
             outBoxBuilder.set_register_value(5, wasm.Constant.from_byte_array(ergoname_name_bytes));
-            outBoxBuilder.set_register_value(6, wasm.Constant.from_i32(ergoname_price));
-            outBoxBuilder.set_register_value(7, wasm.Constant.from_byte_array(template_bytes));
+            outBoxBuilder.set_register_value(6, wasm.Constant.from_i64(wasm.I64.from_str(ergoname_price.toString())));
+            outBoxBuilder.set_register_value(7, wasm.Constant.from_byte_array(reciever_address_bytes));
 
             try {
                 outputCandidates.add(outBoxBuilder.build());
