@@ -342,7 +342,6 @@ fn create_token_vector(data: String) -> Vec<Token> {
 fn get_asset_minted_at_address(token_vector: Vec<Token>) -> String{
     for i in token_vector {
         let address: String = get_box_address(&i.box_id);
-        println!("{}", address);
         if address == MINT_ADDRESS.to_owned() {
             return i.id;
         }
