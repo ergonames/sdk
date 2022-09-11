@@ -62,13 +62,15 @@ export async function send_transaction(ergoname_price, ergoname_name, reciever_a
 
             let ergoname_name_bytes = Uint8Array.from(Buffer.from(ergoname_name, 'utf8'));
 
+            let expected_amount = ergoname_price - (.001 * 2);
+
             let reciever_address_type = wasm.Address.from_mainnet_str(reciever_address);
             let reciever_address_ergotree = reciever_address_type.to_ergo_tree();
             let reciever_address_bytes = reciever_address_ergotree.sigma_serialize_bytes();
             
             outBoxBuilder.set_register_value(4, wasm.Constant.from_i32(ROYALTY_PERCENTAGE));
             outBoxBuilder.set_register_value(5, wasm.Constant.from_byte_array(ergoname_name_bytes));
-            outBoxBuilder.set_register_value(6, wasm.Constant.from_i64(wasm.I64.from_str(ergoname_price.toString())));
+            outBoxBuilder.set_register_value(6, wasm.Constant.from_i64(wasm.I64.from_str(expected_amount.toString())));
             outBoxBuilder.set_register_value(7, wasm.Constant.from_byte_array(reciever_address_bytes));
 
             try {
