@@ -1,7 +1,7 @@
 import * as wasm from "ergo-lib-wasm-browser";
 import JSONBigInt from "json-bigint";
 
-const DEFAULT_EXPLORER_URL = "http://69.164.215.107:8080";
+const DEFAULT_EXPLORER_URL = "https://api.ergoplatform.com";
 const ERGONAMES_CONTRACT_ADDRESS = "3y2HhzAM4nqigycKEUtfFywbQdy1BX4mdZHMcKe86nr9JnyCAVTte3iYoHMDyofeayzsBXcy4RAa196ecT6mBS4SjamQfRoghbaKhnmNbtysbhoCURrFrrvAhgqKZG66m2iieWTRE6S41Dk6zzBWZC6nFPskjAkHyweTuXysWiNnJM8MZw5uQ2Gzevxzvab5dbcVRVsqL7cG9anp7Lt7NHBdKHqZpR5nL3Lx9W6aR4BTD9hX3Ln2cHtVZnXbmdrJjgC1J17XaocFLUXT2ZhC3PBzAu2p5yMWrkQ4tbv3V1PXN6xJeA";
 const ROYALTY_PERCENTAGE = 20;
     
