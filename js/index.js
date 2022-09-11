@@ -298,5 +298,3 @@ async function check_correct_ownership(token_data) {
     }
     return token_data;
 }
-
-console.log(await resolve_ergoname("~api_mint_3"));
