@@ -62,7 +62,7 @@ export async function send_transaction(ergoname_price, ergoname_name, reciever_a
 
             let ergoname_name_bytes = Uint8Array.from(Buffer.from(ergoname_name, 'utf8'));
 
-            let expected_amount = ergoname_price - (.001 * 2);
+            let expected_amount = ergoname_price - (1000000 * 2);
 
             let reciever_address_type = wasm.Address.from_mainnet_str(reciever_address);
             let reciever_address_ergotree = reciever_address_type.to_ergo_tree();
