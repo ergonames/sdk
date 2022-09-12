@@ -24,9 +24,9 @@ impl Token {
 }
 
 /// The default explorer API URL.
-pub const EXPLORER_API_URL: &str = "http://69.164.215.107:8080/";
+pub const EXPLORER_API_URL: &str = "https://api.ergoplatform.com/";
 /// The ErgoNames mint address.
-pub const MINT_ADDRESS: &str = "3y2HhzAM4nqigycKEUtfFywbQdy1BX4mdZHMcKe86nr9JnyCAVTte3iYoHMDyofeayzsBXcy4RAa196ecT6mBS4SjamQfRoghbaKhnmNbtysbhoCURrFrrvAhgqKZG66m2iieWTRE6S41Dk6zzBWZC6nFPskjAkHyweTuXysWiNnJM8MZw5uQ2Gzevxzvab5dbcVRVsqL7cG9anp7Lt7NHBdKHqZpR5nL3Lx9W6aR4BTD9hX3Ln2cHtVZnXbmdrJjgC1J17XaocFLUXT2ZhC3PBzAu2p5yMWrkQ4tbv3V1PXN6xJeA";
+pub const MINT_ADDRESS: &str = "UdxRdtdSEDnwd6S2c8VzsgQRX6Ud3Bb7jiQxCGRpja8qqyHj9ET6NVqEmdLdUHhLnRxkCihRWMnVy7Rm8ESXkhyCcNDXhHzyUPWZswveerXVPW9SK9ptmuzA24b4imjzb1MhdrL5tLmpx1hHiq7Htm9fGVqUgnZyaz2ccK5EtsG2NnBTEdhQhYXcuDWAhNRnLDrFGeRfL18geEi8mkiWBYerLc7qQhe6MsjeM5PMj52JL9zvYi146jcRGNaaB8LL8DSzDTxrtExCak9UDxU5rR5bZ6PSKSSxZaskN8QFcLvFSgSPm";
 /// The ErgoNames mint address as ErgoTree.
 pub const MINT_ADDRESS_ERGO_TREE: &str = "";
 
@@ -463,12 +463,11 @@ fn get_timestamp_from_transaction(block_id: &str) -> String {
 mod tests {
     use crate::*;
 
-    const NAME: &str = "~api_mint_3";
+    const NAME: &str = "~firstofmany";
     const NULL_NAME: &str = "~zack";
     const INVALID_NAME: &str =  "~balb+=]}/";
-    const ADDRESS: &str = "3WxSZYxata5rWu6tch2JD2KHBbKDtfFrysQucmhEc6fbSHkqPEnY";
-    // const ADDRESS_TWO: &str = "3WwKzFjZGrtKAV7qSCoJsZK9iJhLLrUa3uwd4yw52bVtDVv6j5TL";
-    const NULL_ADDRESS: &str = "3Wxf2LxF8HUSzfnT6bDGGUDNp1YMvWo5JWxjeSpszuV6w6UJGLSf";
+    const ADDRESS: &str = "9fEqfyAUQE7aCuYazV28moMjMUtzA8wSqyY7iPZAwSViCjDSnEB";
+    const NULL_ADDRESS: &str = "9f5DBrs8oReD5pztPz1hqnmLoNqPuDqJC7rskt593sJxVQoing8";
 
     #[test]
     fn test_resolve_ergoname() {
@@ -593,8 +592,8 @@ mod tests {
     #[test]
     fn test_reverse_search() {
         let name: String = "~balb".to_string();
-        let id: String = "2b41b93d22a46de0b0ed9c8b814b766298adbf2ff304f83ee2426f47ac33d9b8".to_string();
-        let box_id: String = "82b9b9773471041f1fa4763dc14e156f6c044e41d99ac7ef34709be4fef7c6d6".to_string();
+        let id: String = "9464438a5d880041a186a3191a281a45034d8fd6a03a331b2aeeb99b86fc4754".to_string();
+        let box_id: String = "291161a64da988c50b1947e2b558e8ce9bed028a910b2813522460e7c1837e40".to_string();
         let legit_token: Token = Token::new(name, id, box_id);
         let mut vec: Vec<Token> = Vec::<Token>::new();
         vec.push(legit_token);

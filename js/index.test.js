@@ -2,9 +2,9 @@ import { resolve_ergoname, check_already_registered, check_name_valid, get_block
 import pkg from 'lodash';
 const { isEqual } = pkg;
 
-const name = "~simple_test";
+const name = "~firstofmany";
 const null_name = "~zack";
-const address = "9fRzQR57wiJDhMNv7jexXobmEzQC7gu7CqpiZvYtZcdura4YQWA";
+const address = "9fEqfyAUQE7aCuYazV28moMjMUtzA8wSqyY7iPZAwSViCjDSnEB";
 const null_address = "9f5DBrs8oReD5pztPz1hqnmLoNqPuDqJC7rskt593sJxVQoing8";
 
 let passed_amount = 0;
@@ -107,7 +107,7 @@ const test_get_block_id_registered = async () => {
     const block_id = await get_block_id_registered(name);
     let end_timestamp = Date.now();
     let time_taken = end_timestamp - start_timestamp;
-    if (block_id === "0e31fd066ced1d599541cd545f88435d8002690f2110eb9084cf4515dbea5081") {
+    if (block_id === "0873d8dc922e1e7b8c802bee599cdfa13e010fe7f96dfb473383548ac68b6189") {
         passed_amount += 1;
         total_amount += 1;
         return "Test get_block_id_registered passed in " + time_taken + " milliseconds";
@@ -137,7 +137,7 @@ const test_get_block_registered = async () => {
     const block = await get_block_registered(name);
     let end_timestamp = Date.now();
     let time_taken = end_timestamp - start_timestamp;
-    if (block === 836617) {
+    if (block === 836605) {
         passed_amount += 1;
         total_amount += 1;
         return "Test get_block_registered passed in " + time_taken + " milliseconds";
@@ -167,7 +167,7 @@ const test_get_timestamp_registered = async () => {
     const timestamp = await get_timestamp_registered(name);
     let end_timestamp = Date.now();
     let time_taken = end_timestamp - start_timestamp;
-    if (timestamp === 1662944709276) {
+    if (timestamp === 1662942507465) {
         passed_amount += 1;
         total_amount += 1;
         return "Test get_timestamp_registered passed in " + time_taken + " milliseconds";
@@ -227,7 +227,7 @@ const test_reverse_search = async () => {
     const reverse_search_result = await reverse_search(address);
     let end_timestamp = Date.now();
     let time_taken = end_timestamp - start_timestamp;
-    let token_data = {'tokenId': 'a2c321deba7728bef91cdb08ab860cfb4c147637837ab77571473018a6cd5380', 'amount': 1, 'decimals': 0, 'name': '~simple_test', 'tokenType': 'EIP-004'}
+    let token_data = {'tokenId': '9464438a5d880041a186a3191a281a45034d8fd6a03a331b2aeeb99b86fc4754', 'amount': 1, 'decimals': 0, 'name': '~firstofmany', 'tokenType': 'EIP-004'}
     let owned_array = [token_data];
     if (isEqual(reverse_search_result, owned_array)) {
         passed_amount += 1;
