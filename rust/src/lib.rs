@@ -2,7 +2,6 @@ use serde_json::{Value};
 use chrono::prelude::*;
 use chrono::Utc;
 use std::time::{SystemTime, UNIX_EPOCH, Duration};
-use std::io::Error;
 
 /// Struct for tokens retrieved from API calls
 #[derive(Debug, Clone)]
@@ -78,10 +77,16 @@ pub fn check_name_price(name: &str) -> Option<i32> {
 
 /// Resolves the owner address of a given ErgoName.
 pub fn resolve_ergoname(name: &str, explorer_url: Option<String>) -> Option<String> {
-    let token_data: String = create_token_data(&name, explorer_url.clone()).unwrap();
-    if token_data != "None" {
+    let token_data: Option<String> = create_token_data(&name, explorer_url.clone());
+    if token_data != None {
+        let token_data: String = token_data.unwrap();
         let token_vector: Vec<Token> = create_token_vector(token_data);
-        let token_id: String = get_asset_minted_at_address(token_vector);
+        let token_id: Option<String> = get_asset_minted_at_address(token_vector);
+        println!("{:?}", token_id);
+        if token_id.is_none() {
+            return None;
+        }
+        let token_id: String = token_id.unwrap();
         let token_transactions: Value = get_token_transaction_data(&token_id, explorer_url).unwrap();
         let token_last_transaction: Value = get_last_transaction_for_token(token_transactions);
         let token_current_box_id: String = get_box_id_from_token_data(token_last_transaction);
@@ -165,10 +170,15 @@ pub fn get_total_amount_owned(address: &str, explorer_url: Option<String>) -> Op
 
 /// Returns the block id that an ErgoName was registered at.
 pub fn get_block_id_registered(name: &str, explorer_url: Option<String>) -> Option<String> {
-    let token_data: String = create_token_data(&name, explorer_url.clone()).unwrap();
-    if token_data != "None" {
+    let token_data: Option<String> = create_token_data(&name, explorer_url.clone());
+    if token_data != None {
+        let token_data: String = token_data.unwrap();
         let token_vector: Vec<Token> = create_token_vector(token_data);
-        let token_id: String = get_asset_minted_at_address(token_vector);
+        let token_id: Option<String> = get_asset_minted_at_address(token_vector);
+        if token_id.is_none() {
+            return None;
+        }
+        let token_id: String = token_id.unwrap();
         let first_transaction: Value = get_first_transaction_for_token(&token_id);
         let block_id: String = remove_quotes(first_transaction["headerId"].clone().to_string());
         return Some(block_id);
@@ -291,7 +301,7 @@ fn get_address_confirmed_balance(address: &str, explorer_url: Option<String>) ->
 }
 
 /// Combines get_token_data calls into a singular String object.
-fn create_token_data(token_name: &str, explorer_url: Option<String>) -> Result<String, Error> {
+fn create_token_data(token_name: &str, explorer_url: Option<String>) -> Option<String> {
     let total: u64 = get_token_data(&token_name, 1, 0, explorer_url.clone()).unwrap()["total"].to_owned().as_u64().unwrap();
     let needed_calls: u64 = (total / 500) + 1;
     let mut offset: u64 = 0;
@@ -301,9 +311,9 @@ fn create_token_data(token_name: &str, explorer_url: Option<String>) -> Result<S
             transaction_data = transaction_data + &get_token_data(&token_name, 500, offset, explorer_url.clone()).unwrap()["items"].to_string();
             offset = offset + 500;
         }
-        return Ok(transaction_data);
+        return Some(transaction_data);
     } else {
-        return Ok("None".to_string());
+        return None;
     }
 }
 
@@ -339,14 +349,14 @@ fn create_token_vector(data: String) -> Vec<Token> {
 }
 
 /// Returns the id of a token for a given mint address.
-fn get_asset_minted_at_address(token_vector: Vec<Token>) -> String{
+fn get_asset_minted_at_address(token_vector: Vec<Token>) -> Option<String> {
     for i in token_vector {
         let address: String = get_box_address(&i.box_id);
         if address == MINT_ADDRESS.to_owned() {
-            return i.id;
+            return Some(i.id);
         }
     }
-    return "None".to_owned();
+    return None;
 }
 
 /// Returns the address that a box is bound to.
