@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const EXPLORER_API_URL = "https://api.ergoplatform.com";
-const MINT_ADDRESS = "UdxRdtdSEDnwd6S2c8VzsgQRX6Ud3Bb7jiQxCGRpja8qqyHj9ET6NVqEmdLdUHhLnRxkCihRWMnVy7Rm8ESXkhyCcNDXhHzyUPWZswveerXVPW9SK9ptmuzA24b4imjzb1MhdrL5tLmpx1hHiq7Htm9fGVqUgnZyaz2ccK5EtsG2NnBTEdhQhYXcuDWAhNRnLDrFGeRfL18geEi8mkiWBYerLc7qQhe6MsjeM5PMj52JL9zvYi146jcRGNaaB8LL8DSzDTxrtExCak9UDxU5rR5bZ6PSKSSxZaskN8QFcLvFSgSPm";
+const EXPLORER_API_URL = "https://api-testnet.ergoplatform.com";
+const MINT_ADDRESS = "3WwSJwNh7bDXVa6bkxammz3cydPGVy86gVoHbH2hNhWQdni8NSJa";
 
 const MINT_ADDRESS_ERGO_TREE = "";
 

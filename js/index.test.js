@@ -2,10 +2,10 @@ import { resolve_ergoname, check_already_registered, check_name_valid, get_block
 import pkg from 'lodash';
 const { isEqual } = pkg;
 
-const name = "~firstofmany";
+const name = "sdktests";
 const null_name = "~zack";
-const address = "9fEqfyAUQE7aCuYazV28moMjMUtzA8wSqyY7iPZAwSViCjDSnEB";
-const null_address = "9f5DBrs8oReD5pztPz1hqnmLoNqPuDqJC7rskt593sJxVQoing8";
+const address = "3WwKzFjZGrtKAV7qSCoJsZK9iJhLLrUa3uwd4yw52bVtDVv6j5TL";
+const null_address = "3WycHxEz8ExeEWpUBwvu1FKrpY8YQCiH1S9PfnAvBX1K73BXBXZa";
 
 let passed_amount = 0;
 let failed_amount = 0;
