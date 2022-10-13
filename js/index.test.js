@@ -3,9 +3,10 @@ import pkg from 'lodash';
 const { isEqual } = pkg;
 
 const name = "sdktests";
-const null_name = "~zack";
-const address = "3WwKzFjZGrtKAV7qSCoJsZK9iJhLLrUa3uwd4yw52bVtDVv6j5TL";
-const null_address = "3WycHxEz8ExeEWpUBwvu1FKrpY8YQCiH1S9PfnAvBX1K73BXBXZa";
+const null_name = "nullname";
+const j5TL_address  = "3WwKzFjZGrtKAV7qSCoJsZK9iJhLLrUa3uwd4yw52bVtDVv6j5TL";
+const BXZa_address   = "3WycHxEz8ExeEWpUBwvu1FKrpY8YQCiH1S9PfnAvBX1K73BXBXZa";
+const GLSf_address = "3Wxf2LxF8HUSzfnT6bDGGUDNp1YMvWo5JWxjeSpszuV6w6UJGLSf";
 
 let passed_amount = 0;
 let failed_amount = 0;
@@ -16,7 +17,7 @@ const test_resolve_ergoname = async () => {
     const resolved_name = await resolve_ergoname(name);
     let end_timestamp = Date.now();
     let time_taken = end_timestamp - start_timestamp;
-    if (resolved_name === address) {
+    if (resolved_name === BXZa_address) {
         passed_amount += 1;
         total_amount += 1;
         return "Test resolve_ergoname passed in " + time_taken + " milliseconds";
@@ -107,7 +108,7 @@ const test_get_block_id_registered = async () => {
     const block_id = await get_block_id_registered(name);
     let end_timestamp = Date.now();
     let time_taken = end_timestamp - start_timestamp;
-    if (block_id === "0873d8dc922e1e7b8c802bee599cdfa13e010fe7f96dfb473383548ac68b6189") {
+    if (block_id === "21e7cbe703f24a7827df37e05a11f3b55aaae91115f9c63a77f369fa319a14f6") {
         passed_amount += 1;
         total_amount += 1;
         return "Test get_block_id_registered passed in " + time_taken + " milliseconds";
@@ -137,7 +138,7 @@ const test_get_block_registered = async () => {
     const block = await get_block_registered(name);
     let end_timestamp = Date.now();
     let time_taken = end_timestamp - start_timestamp;
-    if (block === 836605) {
+    if (block === 48209) {
         passed_amount += 1;
         total_amount += 1;
         return "Test get_block_registered passed in " + time_taken + " milliseconds";
@@ -167,7 +168,7 @@ const test_get_timestamp_registered = async () => {
     const timestamp = await get_timestamp_registered(name);
     let end_timestamp = Date.now();
     let time_taken = end_timestamp - start_timestamp;
-    if (timestamp === 1662942507465) {
+    if (timestamp === 1665614877414) {
         passed_amount += 1;
         total_amount += 1;
         return "Test get_timestamp_registered passed in " + time_taken + " milliseconds";
@@ -197,7 +198,7 @@ const test_get_date_registered = async () => {
     const date = await get_date_registered(name);
     let end_timestamp = Date.now();
     let time_taken = end_timestamp - start_timestamp;
-    if (date === "9/11/2022") {
+    if (date === "10/12/2022") {
         passed_amount += 1;
         total_amount += 1;
         return "Test get_date_registered passed in " + time_taken + " milliseconds";
@@ -224,10 +225,10 @@ const test_null_get_date_registered = async () => {
 
 const test_reverse_search = async () => {
     let start_timestamp = Date.now();
-    const reverse_search_result = await reverse_search(address);
+    const reverse_search_result = await reverse_search(BXZa_address);
     let end_timestamp = Date.now();
     let time_taken = end_timestamp - start_timestamp;
-    let token_data = {'tokenId': '9464438a5d880041a186a3191a281a45034d8fd6a03a331b2aeeb99b86fc4754', 'amount': 1, 'decimals': 0, 'name': '~firstofmany', 'tokenType': 'EIP-004'}
+    let token_data = {'tokenId': '90e06b8014663a28523abe9ecf7eb65a74ee179abee1726a7cb47c860ac22b40', 'amount': 1, 'decimals': 0, 'name': 'sdktests', 'tokenType': 'EIP-004'}
     let owned_array = [token_data];
     if (isEqual(reverse_search_result, owned_array)) {
         passed_amount += 1;
@@ -241,7 +242,7 @@ const test_reverse_search = async () => {
 
 const test_null_reverse_search = async () => {
     let start_timestamp = Date.now();
-    const reverse_search_result = await reverse_search(null_address);
+    const reverse_search_result = await reverse_search(GLSf_address);
     let end_timestamp = Date.now();
     let time_taken = end_timestamp - start_timestamp;
     if (reverse_search_result === null) {
@@ -256,10 +257,10 @@ const test_null_reverse_search = async () => {
 
 const test_get_total_amount_owned = async () => {
     let start_timestamp = Date.now();
-    const total_amount_owned = await get_total_amount_owned(address);
+    const total_amount_owned = await get_total_amount_owned(BXZa_address);
     let end_timestamp = Date.now();
     let time_taken = end_timestamp - start_timestamp;
-    if (total_amount_owned === 3) {
+    if (total_amount_owned === 1) {
         passed_amount += 1;
         total_amount += 1;
         return "Test get_total_amount_owned passed in " + time_taken + " milliseconds";
@@ -271,7 +272,7 @@ const test_get_total_amount_owned = async () => {
 
 const test_null_get_total_amount_owned = async () => {
     let start_timestamp = Date.now();
-    const total_amount_owned = await get_total_amount_owned(null_address);
+    const total_amount_owned = await get_total_amount_owned(GLSf_address);
     let end_timestamp = Date.now();
     let time_taken = end_timestamp - start_timestamp;
     if (total_amount_owned === null) {
@@ -298,6 +299,13 @@ console.log(await test_get_timestamp_registered());
 console.log(await test_null_get_timestamp_registered());
 console.log(await test_get_date_registered());
 console.log(await test_null_get_date_registered());
+
+if (passed_amount === 14) {
+    console.log("All registration tests passed\n");
+} else {
+    console.log("Some registration tests failed\n");
+};
+
 console.log(await test_reverse_search());
 console.log(await test_null_reverse_search());
 console.log(await test_get_total_amount_owned());

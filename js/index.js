@@ -130,8 +130,8 @@ export const reverse_search = async (address, explorer_url = EXPLORER_API_URL) =
         return null;
     }
     let valid_tokens = await remove_invalid_tokens(token_data);
-    let owned_tokens = await check_correct_ownership(valid_tokens);
-    return owned_tokens;
+    let correct_tokens = await check_correct_address(valid_tokens, address);
+    return correct_tokens;
 }
 
 export const get_total_amount_owned = async (address, explorer_url = EXPLORER_API_URL) => {
@@ -278,18 +278,30 @@ async function remove_invalid_tokens(token_data) {
             token_data.splice(i, 1);
             i--;
         }
+        let token_amount = token.amount;
+        if (token_amount != 1) {
+            token_data.splice(i, 1);
+            i--;
+        }
+        let token_type = token.tokenType;
+        if (token_type != 'EIP-004') {
+            token_data.splice(i, 1);
+            i--;
+        }
+        let token_decimals = token.decimals;
+        if (token_decimals != 0) {
+            token_data.splice(i, 1);
+            i--;
+        } 
     }
     return token_data;
 }
 
-async function check_correct_ownership(token_data) {
-    for (let i = 0; i < token_data.length; i++) {
+async function check_correct_address(token_data, address) {
+    for (let i=0; i<token_data.length; i++) {
         let token = token_data[i];
-        let token_id = token.tokenId;
-        let token_transactions = await get_token_transaction_data(token_id);
-        let first_transaction = await get_first_transaction_for_token(token_transactions);
-        let box_id = await get_box_id_from_token_data(first_transaction);
-        if (await get_box_address(box_id) != MINT_ADDRESS) {
+        let token_name = token.name;
+        if (await resolve_ergoname(token_name) != address) {
             token_data.splice(i, 1);
             i--;
         }
