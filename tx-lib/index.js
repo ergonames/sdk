@@ -25,7 +25,7 @@ export async function sendTransaction(price, name, receiverAddress, explorerUrl 
             )
             .sendChangeTo(receiverAddress)
             .payMinFee()
-            .build();
+            .build("EIP-12");
 
         
         console.log(unsignedTransaction);
