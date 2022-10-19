@@ -6,34 +6,30 @@ const ROYALTY_PERCENTAGE = 20;
 
 export async function sendTransaction(price, name, receiverAddress, explorerUrl = DEFAULT_EXPLORER_URL) {
     let currentHeight = await getCurrentHeight(explorerUrl);
-    let tx = ergoConnector.nautilus.connect().then(async () => {
-        let amountToSend = price + (1000000 * 2);
-        let inputs = await ergo.get_utxos(amountToSend);
+    let amountToSend = price + (1000000 * 2);
+    let inputs = await ergo.get_utxos(amountToSend);
 
-        let receiverErgoAddress = ErgoAddress.fromBase58(String(receiverAddress));
-        let receiverErgoTree = receiverErgoAddress.ergoTree;
+    let receiverErgoAddress = ErgoAddress.fromBase58(String(receiverAddress));
+    let receiverErgoTree = receiverErgoAddress.ergoTree;
 
-        const unsignedTransaction = new TransactionBuilder(currentHeight)
-            .from(inputs)
-            .to(new OutputBuilder(amountToSend, ERGONAMES_CONTRACT_ADDRESS)
-                .setAdditionalRegisters({
-                    R4: ROYALTY_PERCENTAGE,
-                    R5: SColl(Buffer.from(name, "utf-8")).toString("hex"),
-                    R6: price,
-                    R7: receiverErgoTree,
-                })
-            )
-            .sendChangeTo(receiverAddress)
-            .payMinFee()
-            .build("EIP-12");
-
-        
-        console.log(unsignedTransaction);
-        let signedTransaction = await ergo.sign_tx(unsignedTransaction);
-        let txInfo = await ergo.submit_tx(signedTransaction);    
-        return txInfo;
-    })
-    return tx;
+    const unsignedTransaction = new TransactionBuilder(currentHeight)
+        .from(inputs)
+        .to(new OutputBuilder(amountToSend, ERGONAMES_CONTRACT_ADDRESS)
+            .setAdditionalRegisters({
+                R4: ROYALTY_PERCENTAGE,
+                R5: SColl(Buffer.from(name, "utf-8")).toString("hex"),
+                R6: price,
+                R7: receiverErgoTree,
+            })
+        )
+        .sendChangeTo(receiverAddress)
+        .payMinFee()
+        .build("EIP-12");
+    
+    console.log(unsignedTransaction);
+    let signedTransaction = await ergo.sign_tx(unsignedTransaction);
+    let txInfo = await ergo.submit_tx(signedTransaction);    
+    return txInfo;
 }
 
 async function getCurrentHeight(explorerUrl = DEFAULT_EXPLORER_URL) {
