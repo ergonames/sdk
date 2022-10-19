@@ -26,7 +26,6 @@ export async function sendTransaction(price, name, receiverAddress, explorerUrl 
         .payMinFee()
         .build("EIP-12");
     
-    console.log(unsignedTransaction);
     let signedTransaction = await ergo.sign_tx(unsignedTransaction);
     let txInfo = await ergo.submit_tx(signedTransaction);    
     return txInfo;
