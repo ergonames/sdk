@@ -127,12 +127,12 @@ export const resolveErgonameRegistrationInformation = async (name, endpoint = GR
     let tokenRegistrationBlock = await getBlockInfoByHeight(creationHeight, endpoint);
     let timestamp = tokenRegistrationBlock.timestamp;
     let blockId = tokenRegistrationBlock.headerId;
-    return { tokenId: tokenId, boxId: boxId, address: address, timestamp: timestamp, blockId: blockId };
+    return { tokenId: tokenId, boxId: boxId, address: address, height: creationHeight, timestamp: timestamp, blockId: blockId };
 }
 
 export const checkAlreadyRegistered = async (name, endpoint = GRAPH_QL_URL) => {
     name = reformatErgonameInput(name);
-    let tokenData = await resolve_ergoname(name, endpoint);
+    let tokenData = await resolveErgoname(name, endpoint);
     if (tokenData == null) {
         return false;
     }

@@ -16,8 +16,5 @@
   "dependencies": {
     "axios": "^0.27.2"
   },
-  "type": "module",
-  "devDependencies": {
-    "lodash": "^4.17.21"
-  }
+  "type": "module"
 }
