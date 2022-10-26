@@ -8,6 +8,19 @@ pub struct ResolveData {
     pub token_address: String,
 }
 
+#[derive(Debug)]
+pub struct RegistrationData {
+    pub token_id: String,
+    pub box_id: String,
+    pub transaction_id: String,
+    pub address: String,
+    pub block_id: String,
+    pub height: u32,
+    pub timestamp: u64,
+    pub price: String,
+    pub royalty: String,
+}
+
 /// The default explorer API URL.
 pub const GRAPH_QL_URL: &str = "https://gql-testnet.ergoplatform.com/";
 /// The ErgoNames mint address.
@@ -65,6 +78,33 @@ fn get_current_token_address(token_id: &str, endpoint: Option<String>) -> Result
     return Ok(response);
 }
 
+fn get_token_registration_box(token_id: &str, endpoint: Option<String>) -> Result<Value> {
+    let query: String = format!("query BlockHeaders($tokenId: String!) {{ tokens(tokenId: $tokenId) {{ box {{ boxId creationHeight address transactionId }} }} }}");
+    let variables: Value = json!({
+        "tokenId": token_id
+    });
+    let response: Value = make_graphql_request(&query, &variables.to_string(), endpoint).unwrap();
+    return Ok(response);
+}
+
+fn get_block_info_by_height(height: u32, endpoint: Option<String>) -> Result<Value> {
+    let query: String = format!("query BlockHeaders($height: Int!) {{ blocks(height: $height) {{ timestamp headerId }} }}");
+    let variables: Value = json!({
+        "height": height
+    });
+    let response: Value = make_graphql_request(&query, &variables.to_string(), endpoint).unwrap();
+    return Ok(response);
+}
+
+fn get_transaction_input_registers(transaction_id: &str, endpoint: Option<String>) -> Result<Value> {
+    let query: String = format!("query BlockHeaders($transactionId: String!) {{ transactions(transactionId: $transactionId) {{ inputs {{ box {{ additionalRegisters }} }} }} }}");
+    let variables: Value = json!({
+        "transactionId": transaction_id
+    });
+    let response: Value = make_graphql_request(&query, &variables.to_string(), endpoint).unwrap();
+    return Ok(response);
+}
+
 fn get_correct_token(name: &str, endpoint: Option<String>) -> Option<String> {
     let token_data: Result<Value> = get_token_data(name, endpoint.clone());
     if token_data.is_err() {
@@ -102,6 +142,7 @@ fn get_correct_token(name: &str, endpoint: Option<String>) -> Option<String> {
     return None;
 }
 
+/// Reformats the input to ErgoName standard format
 pub fn reformat_ergoname_input(name: &str) -> String {
     if name.starts_with("~") {
         let name: String = name.replace("~", "");
@@ -110,6 +151,7 @@ pub fn reformat_ergoname_input(name: &str) -> String {
     name.to_string()
 }
 
+/// Resolved token data for the given ErgoName with token ID and current token address
 pub fn resolve_ergoname(name: &str, endpoint: Option<String>) -> Option<ResolveData> {
     let name: String = reformat_ergoname_input(name);
     let token_id: Option<String> = get_correct_token(&name, endpoint.clone());
@@ -132,4 +174,85 @@ pub fn resolve_ergoname(name: &str, endpoint: Option<String>) -> Option<ResolveD
         token_address: current_address.to_string(),
     };
     return Some(resolve_data);
+}
+
+pub fn check_ergoname_registration_information(name: &str, endpoint: Option<String>) -> Option<RegistrationData> {
+    let name: String = reformat_ergoname_input(name);
+    let token_id: Option<String> = get_correct_token(&name, endpoint.clone());
+    if token_id.is_none() {
+        return None;
+    }
+    let token_id: String = token_id.unwrap();
+    let registration_box: Result<Value> = get_token_registration_box(&token_id, endpoint.clone());
+    if registration_box.is_err() {
+        return None;
+    }
+    let registration_box: Value = registration_box.unwrap();
+    let creation_height: u32 = registration_box["data"]["tokens"][0]["box"]["creationHeight"].as_u64().unwrap() as u32;
+    let box_id: &str = registration_box["data"]["tokens"][0]["box"]["boxId"].as_str().unwrap();
+    let address: &str = registration_box["data"]["tokens"][0]["box"]["address"].as_str().unwrap();
+    let token_registration_block: Result<Value> = get_block_info_by_height(creation_height, endpoint.clone());
+    if token_registration_block.is_err() {
+        return None;
+    }
+    let token_registration_block: Value = token_registration_block.unwrap();
+    let timestamp: u64 = token_registration_block["data"]["blocks"][0]["timestamp"].to_string().replace("\"", "").parse().unwrap();
+    let block_id: &str = token_registration_block["data"]["blocks"][0]["headerId"].as_str().unwrap();
+    let transaction_id: &str = registration_box["data"]["tokens"][0]["box"]["transactionId"].as_str().unwrap();
+    let input_registers: Result<Value> = get_transaction_input_registers(transaction_id, endpoint.clone());
+    if input_registers.is_err() {
+        return None;
+    }
+    let input_registers: Value = input_registers.unwrap();
+    // TODO: Properly parse register information
+    let royalty_raw: String = input_registers["data"]["transactions"][0]["inputs"][0]["box"]["additionalRegisters"]["R4"].to_string().replace("\"", "");
+    let amount_spend_raw: String = input_registers["data"]["transactions"][0]["inputs"][1]["box"]["additionalRegisters"]["R5"].to_string().replace("\"", "");
+    return Some(RegistrationData {
+        token_id,
+        box_id: box_id.to_string(),
+        transaction_id: transaction_id.to_string(),
+        address: address.to_string(),
+        block_id: block_id.to_string(),
+        height: creation_height,
+        timestamp,
+        price: amount_spend_raw,
+        royalty: royalty_raw,
+    });
+}
+
+/// Returns false if the given ErgoName is not registered and true if it is registered
+pub fn check_already_registered(name: &str, endpoint: Option<String>) ->  bool {
+    let name: String = reformat_ergoname_input(name);
+    let resolved_data: Option<ResolveData> = resolve_ergoname(&name, endpoint);
+    if resolved_data.is_none() {
+        return false;
+    }
+    return true;
+}
+
+/// Checks if the input name is valid according to ErgoName standards
+pub fn check_name_valid(name: &str) -> bool {
+    let name: String = reformat_ergoname_input(name);
+    for c in name.chars() {
+        let char_code: u32 = c as u32;
+        if char_code <= 44 {
+            return false;
+        }
+        else if char_code == 47 {
+            return false;
+        }
+        else if char_code >= 58 && char_code <= 94 {
+            return false;
+        }
+        else if char_code == 96 {
+            return false;
+        }
+        else if char_code >= 123 && char_code <= 125 {
+            return false;
+        }
+        else if char_code >= 127 {
+            return false;
+        }
+    }
+    return true;
 }
