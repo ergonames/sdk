@@ -73,7 +73,7 @@ const testNullCheckAlreadyRegisterd = async () => {
 
 const testCheckNameValid = async () => {
     let startTimestamp = Date.now();
-    const valid_name = await checkNameValid(name);
+    const valid_name = checkNameValid(name);
     let endTimestamp = Date.now();
     let timeTaken = endTimestamp - startTimestamp;
     if (valid_name === true) {
@@ -88,7 +88,7 @@ const testCheckNameValid = async () => {
 
 const testNullCheckNameValid = async () => {
     let startTimestamp = Date.now();
-    const valid_name = await checkNameValid(nullName);
+    const valid_name = checkNameValid(nullName);
     let endTimestamp = Date.now();
     let timeTaken = endTimestamp - startTimestamp;
     if (valid_name === true) {
