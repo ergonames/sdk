@@ -156,5 +156,3 @@ export const checkNameValid = (name) => {
     }
     return true;
 }
-
-console.log(await resolveErgonameRegistrationInformation("~paymentaddressparam"));
