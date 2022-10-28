@@ -26,8 +26,9 @@ export async function sendTransaction(price, name, receiverAddress, explorerUrl 
         .build("EIP-12");
     
     let signedTransaction = await ergo.sign_tx(unsignedTransaction);
+    let outputZeroBoxId = signedTransaction.outputs[0].boxId;
     let txInfo = await ergo.submit_tx(signedTransaction);    
-    return txInfo;
+    return { txId: txInfo, boxId: outputZeroBoxId };
 }
 
 async function getCurrentHeight(explorerUrl = DEFAULT_EXPLORER_URL) {
