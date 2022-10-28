@@ -1,3 +1,4 @@
+use ergo_lib::ergotree_ir::{chain::ergo_box::{NonMandatoryRegisters}, mir::constant::{Literal, TryExtractInto, Constant}};
 use serde_json::{Value, json};
 use anyhow::{Result, Ok};
 use reqwest::{blocking::Client};
@@ -17,8 +18,8 @@ pub struct RegistrationData {
     pub block_id: String,
     pub height: u32,
     pub timestamp: u64,
-    pub price: String,
-    pub royalty: String,
+    pub price: i64,
+    pub royalty: i32,
 }
 
 /// The default explorer API URL.
@@ -205,8 +206,16 @@ pub fn check_ergoname_registration_information(name: &str, endpoint: Option<Stri
     }
     let input_registers: Value = input_registers.unwrap();
     // TODO: Properly parse register information
-    let royalty_raw: String = input_registers["data"]["transactions"][0]["inputs"][0]["box"]["additionalRegisters"]["R4"].to_string().replace("\"", "");
-    let amount_spend_raw: String = input_registers["data"]["transactions"][0]["inputs"][1]["box"]["additionalRegisters"]["R5"].to_string().replace("\"", "");
+    let royalty_raw: String = input_registers["data"]["transactions"][0]["inputs"][0]["box"]["additionalRegisters"]["R4"].to_string();
+    let amount_spend_raw: String = input_registers["data"]["transactions"][0]["inputs"][1]["box"]["additionalRegisters"]["R5"].to_string();
+    let registers_json: String = format!("{{\"R4\": {}, \"R5\": {}}}", royalty_raw, amount_spend_raw);
+    let registers_value: NonMandatoryRegisters = serde_json::from_str(&registers_json).unwrap();
+    let royaltyc: &Constant = &registers_value.get_ordered_values()[0];
+    let royaltyl: &Literal = &royaltyc.v.to_owned();
+    let royalty: i32 = royaltyl.to_owned().try_extract_into().unwrap();
+    let amount_spendc: &Constant = &registers_value.get_ordered_values()[1];
+    let amount_spendl: &Literal = &amount_spendc.v.to_owned();
+    let amount_spend: i64 = amount_spendl.to_owned().try_extract_into().unwrap();
     return Some(RegistrationData {
         token_id,
         box_id: box_id.to_string(),
@@ -215,8 +224,8 @@ pub fn check_ergoname_registration_information(name: &str, endpoint: Option<Stri
         block_id: block_id.to_string(),
         height: creation_height,
         timestamp,
-        price: amount_spend_raw,
-        royalty: royalty_raw,
+        price: amount_spend,
+        royalty: royalty,
     });
 }
 
