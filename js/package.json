@@ -1,6 +1,6 @@
 {
   "name": "ergonames",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "A SDK for resolving ErgoNames.",
   "main": "index.js",
   "homepage": "https://ergonames.com/",
@@ -14,7 +14,6 @@
   "author": "Ergo Names",
   "license": "MIT",
   "dependencies": {
-    "@fleet-sdk/core": "^0.1.0-alpha.4",
     "axios": "^0.27.2"
   },
   "type": "module"
