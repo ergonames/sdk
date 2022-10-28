@@ -1,8 +1,7 @@
-import { ErgoAddress, OutputBuilder, SColl, TransactionBuilder } from "@fleet-sdk/core";
+import { ErgoAddress, OutputBuilder, SColl, SByte, SConstant, SLong, TransactionBuilder } from "@fleet-sdk/core";
 
 const DEFAULT_EXPLORER_URL = "https://api-testnet.ergoplatform.com";
-const ERGONAMES_CONTRACT_ADDRESS = "XV64MAhmxVwnr8hFLcoTpJas5XQZ4EmPx7s3rdD9EFVxRk8uHZf8AGbN5aKL1Rn563BTbprBw3ex7fusqtAMTcpy6tU1FySTXNqWo1xrHcQ5DkKytmguJB6BGLi4NLUjaFX3mQSbqWJz6VmLa7nUe4YsGji7YQuK6bTxaLoUogG3FSt6gjJLm3NY9ZeoAvw1wqaB2qMpNNfvspaeenydQ6Xxo9qt1N4HfnDkXosyCeA4maaam5bHBjcg8uKey8pLYLG65cdfizvqhVVbEAYYcm85VCimwvY6WxapSkVA6G13GAB284LcFCHoXTnWMRLoFNw2RGNtMtpFbpHYDFqT7iyYaJmDm9a9WVGQjbK7o2q3moLECneZYB1BnMSBynhJzJ";
-const ROYALTY_PERCENTAGE = 20;
+const ERGONAMES_CONTRACT_ADDRESS = "gyGWQNQZJQ1qvJobi3aP6XGPd8vSAKAJwZowKLMhFQowQjCToww199LT2p7tpeZzJaWDfCeYUhWsw2qaEhCbpcxXpb898WPGz7LxKTWrscMrw8LLeJ6k7UTXDWznrnmkidBbXKVwGfCaHuUyyBBdTyf5rZREH1hw2bdky4hbGnDwjCVpsGnpNgY1ASwwsiDJGJ8GXyvfaZbuT5PaNKYqZxLBbUzRR2bLvm2aVEEBh5AWG77Mzy54nVxMAh1omNRgR8uf2MrMzficmqDPF9hrrk52fDyw6ixxMpwoMoaMovcqkhE3zreWdq3QetW758WPCTu6cEGLMhfMXXqB7jaCh3STPqtp8YayvXNcYBiStFTh2gfG9MSK6fdDdMPZ3QVN1gEhCkmuV2jF713JMRLaWiXTZTHTBr9XM6ympxNDGJpgVWb";
 
 export async function sendTransaction(price, name, receiverAddress, explorerUrl = DEFAULT_EXPLORER_URL) {
     let currentHeight = await getCurrentHeight(explorerUrl);
@@ -11,15 +10,15 @@ export async function sendTransaction(price, name, receiverAddress, explorerUrl 
 
     let receiverErgoAddress = ErgoAddress.fromBase58(String(receiverAddress));
     let receiverErgoTree = receiverErgoAddress.ergoTree;
+    receiverErgoTree = "0e24" + receiverErgoTree;
 
     const unsignedTransaction = new TransactionBuilder(currentHeight)
         .from(inputs)
         .to(new OutputBuilder(amountToSend, ERGONAMES_CONTRACT_ADDRESS)
             .setAdditionalRegisters({
-                R4: ROYALTY_PERCENTAGE,
-                R5: SColl(Buffer.from(name, "utf-8")).toString("hex"),
-                R6: price,
-                R7: receiverErgoTree,
+                R4: SConstant(SColl(SByte, Buffer.from(name, "utf-8"))).toString("hex"),
+                R5: SConstant(SLong(price)).toString("hex"),
+                R6: receiverErgoTree,
             })
         )
         .sendChangeTo(receiverAddress)
