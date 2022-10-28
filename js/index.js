@@ -100,17 +100,17 @@ export const resolveErgoname = async (name, endpoint = BASE_GRAPHQL_URL) => {
     name = reformatErgonameInput(name);
     let tokenId = await getCorrectToken(name, endpoint);
     if (tokenId == null) {
-        return null;
+        return { registered: false, tokenId: null, tokenAddress: null };
     }
     let tokenAddress = await getCurrentTokenAddress(tokenId, endpoint);
-    return { tokenId: tokenId, tokenAddress: tokenAddress };
+    return { registered: true, tokenId: tokenId, tokenAddress: tokenAddress };
 }
 
 export const resolveErgonameRegistrationInformation = async (name, endpoint = BASE_GRAPHQL_URL) => {
     name = reformatErgonameInput(name);
     let tokenId = await getCorrectToken(name, endpoint);
     if (tokenId == null) {
-        return null;
+        return { registered: false, tokenId: null, boxId: null, transactionId: null, address: null, blockId: null, height: null, timestamp: null, registerPrice: null, royalty: null }
     }
     let tokenRegistrationBox = await getTokenRegistrationBox(tokenId, endpoint);
     let creationHeight = tokenRegistrationBox[0].box.creationHeight;
@@ -124,7 +124,7 @@ export const resolveErgonameRegistrationInformation = async (name, endpoint = BA
     let royalty = inputRegisters[0].box.additionalRegisters.R4;
     let amountSpend = inputRegisters[1].box.additionalRegisters.R5;
     // Todo: Decode R4 to get royalty + R6 to get amount spent
-    return { tokenId: tokenId, boxId: boxId, transactionId: transactionId, address: address, blockId: blockId, height: creationHeight, timestamp: timestamp, registerPrice: amountSpend, royalty: royalty };
+    return { registered: true, tokenId: tokenId, boxId: boxId, transactionId: transactionId, address: address, blockId: blockId, height: creationHeight, timestamp: timestamp, registerPrice: amountSpend, royalty: royalty };
 }
 
 export const checkAlreadyRegistered = async (name, endpoint = BASE_GRAPHQL_URL) => {
