@@ -4,10 +4,10 @@ SDKs are under a major rewrite.  The JS SDK is updated to utilize the Graphql se
 
 Roadmap:
 - [x] JS SDK - Graphql
-- [ ] Rust SDK - Graphql
+- [X] Rust SDK - Graphql
 - [ ] Scala SDK - Graphql
 - [ ] Python SDK - Graphql
-- [ ] Tx-Lib - Fleet
+- [X] Tx-Lib - Fleet
 
 ### Resolution SDKs
 
