@@ -1,193 +1,39 @@
-import * as wasm from "ergo-lib-wasm-browser";
-import JSONBigInt from "json-bigint";
+import { ErgoAddress, OutputBuilder, SColl, SByte, SConstant, SLong, TransactionBuilder } from "@fleet-sdk/core";
 
 const DEFAULT_EXPLORER_URL = "https://api-testnet.ergoplatform.com";
-const ERGONAMES_CONTRACT_ADDRESS = "XV64MAhmxVwnr8hFLcoTpJas5XQZ4EmPx7s3rdD9EFVxRk8uHZf8AGbN5aKL1Rn563BTbprBw3ex7fusqtAMTcpy6tU1FySTXNqWo1xrHcQ5DkKytmguJB6BGLi4NLUjaFX3mQSbqWJz6VmLa7nUe4YsGji7YQuK6bTxaLoUogG3FSt6gjJLm3NY9ZeoAvw1wqaB2qMpNNfvspaeenydQ6Xxo9qt1N4HfnDkXosyCeA4maaam5bHBjcg8uKey8pLYLG65cdfizvqhVVbEAYYcm85VCimwvY6WxapSkVA6G13GAB284LcFCHoXTnWMRLoFNw2RGNtMtpFbpHYDFqT7iyYaJmDm9a9WVGQjbK7o2q3moLECneZYB1BnMSBynhJzJ";
-const ROYALTY_PERCENTAGE = 20;
+const ERGONAMES_CONTRACT_ADDRESS = "gyGWQNQZJQ1qvJobi3aP6XGPd8vSAKAJwZowKLMhFQowQjCToww199LT2p7tpeZzJaWDfCeYUhWsw2qaEhCbpcxXpb898WPGz7LxKTWrscMrw8LLeJ6k7UTXDWznrnmkidBbXKVwGfCaHuUyyBBdTyf5rZREH1hw2bdky4hbGnDwjCVpsGnpNgY1ASwwsiDJGJ8GXyvfaZbuT5PaNKYqZxLBbUzRR2bLvm2aVEEBh5AWG77Mzy54nVxMAh1omNRgR8uf2MrMzficmqDPF9hrrk52fDyw6ixxMpwoMoaMovcqkhE3zreWdq3QetW758WPCTu6cEGLMhfMXXqB7jaCh3STPqtp8YayvXNcYBiStFTh2gfG9MSK6fdDdMPZ3QVN1gEhCkmuV2jF713JMRLaWiXTZTHTBr9XM6ympxNDGJpgVWb";
+
+export async function sendTransaction(price, name, receiverAddress, explorerUrl = DEFAULT_EXPLORER_URL) {
+    let currentHeight = await getCurrentHeight(explorerUrl);
+    let amountToSend = price + (1000000 * 2);
+    let inputs = await ergo.get_utxos(amountToSend);
+
+    let receiverErgoAddress = ErgoAddress.fromBase58(String(receiverAddress));
+    let receiverErgoTree = receiverErgoAddress.ergoTree;
+    receiverErgoTree = "0e24" + receiverErgoTree;
+
+    const unsignedTransaction = new TransactionBuilder(currentHeight)
+        .from(inputs)
+        .to(new OutputBuilder(amountToSend, ERGONAMES_CONTRACT_ADDRESS)
+            .setAdditionalRegisters({
+                R4: SConstant(SColl(SByte, Buffer.from(name, "utf-8"))).toString("hex"),
+                R5: SConstant(SLong(price)).toString("hex"),
+                R6: receiverErgoTree,
+            })
+        )
+        .sendChangeTo(receiverAddress)
+        .payMinFee()
+        .build("EIP-12");
     
-async function get_current_height(explorer_url = DEFAULT_EXPLORER_URL) {
-  let url = explorer_url + "/api/v1/blocks?limit=1";
-  return await fetch(url)
-      .then(res => res.json())
-      .then(data => { return data["total"]; })
+    let signedTransaction = await ergo.sign_tx(unsignedTransaction);
+    let outputZeroBoxId = signedTransaction.outputs[0].boxId;
+    let txInfo = await ergo.submit_tx(signedTransaction);    
+    return { txId: txInfo, boxId: outputZeroBoxId };
 }
 
-export async function send_transaction(ergoname_price, ergoname_name, reciever_address, explorer_url = DEFAULT_EXPLORER_URL) {
-    let tx_info = ergoConnector.nautilus.connect().then(() => {
-        let tx_info = ergo.get_balance().then(async function() {
-            async function getUtxos(amountToSend) {
-                const fee = BigInt(wasm.TxBuilder.SUGGESTED_TX_FEE().as_i64().to_str());
-                const fullAmount = BigInt(1000) * amountToSend + fee;
-                console.log(fullAmount);
-                const utxos = await ergo.get_utxos(fullAmount.toString());
-                const filteredUtxos = [];
-                for (const utxo of utxos) {
-                    try {
-                        await wasm.ErgoBox.from_json(JSONBigInt.stringify(utxo));
-                        filteredUtxos.push(utxo);
-                    } catch (e) {
-                        console.log('[getUtxos] UTXO failed parsing: ', utxo, e);
-                    }
-                }
-                return filteredUtxos;
-            }
-
-            const creationHeight = await get_current_height(explorer_url);
-            console.log(creationHeight);
-
-            const amountToSend = BigInt(ergoname_price);
-            const amountToSendBoxValue = wasm.BoxValue.from_i64(wasm.I64.from_str(amountToSend.toString()));
-            const utxos = await getUtxos(amountToSend);
-            let utxosValue = utxos.reduce((acc, utxo) => acc += BigInt(utxo.value), BigInt(0));
-            console.log('utxos', utxosValue, utxos);
-
-            const changeValue = utxosValue - amountToSend - BigInt(wasm.TxBuilder.SUGGESTED_TX_FEE().as_i64().to_str());
-            console.log(`${changeValue} | cv.ts() = ${changeValue.toString()}`);
-            const changeAddr = await ergo.get_change_address();
-            console.log(`changeAddr = ${JSON.stringify(changeAddr)}`);
-
-            const selector = new wasm.SimpleBoxSelector();
-            const boxSelection = selector.select(
-                wasm.ErgoBoxes.from_boxes_json(utxos),
-                wasm.BoxValue.from_i64(amountToSendBoxValue.as_i64().checked_add(wasm.TxBuilder.SUGGESTED_TX_FEE().as_i64())),
-                new wasm.Tokens());
-            console.log(`boxes selected: ${boxSelection.boxes().len()}`);
-
-            const outputCandidates = wasm.ErgoBoxCandidates.empty();
-
-            let outBoxBuilder = new wasm.ErgoBoxCandidateBuilder(
-                amountToSendBoxValue,
-                wasm.Contract.pay_to_address(wasm.Address.from_base58(ERGONAMES_CONTRACT_ADDRESS)),
-                creationHeight);
-
-            let ergoname_name_bytes = Uint8Array.from(Buffer.from(ergoname_name, 'utf8'));
-
-            let expected_amount = ergoname_price - (1000000 * 2);
-
-            let reciever_address_type = wasm.Address.from_testnet_str(reciever_address);
-            let reciever_address_ergotree = reciever_address_type.to_ergo_tree();
-            let reciever_address_bytes = reciever_address_ergotree.sigma_serialize_bytes();
-            
-            outBoxBuilder.set_register_value(4, wasm.Constant.from_i32(ROYALTY_PERCENTAGE));
-            outBoxBuilder.set_register_value(5, wasm.Constant.from_byte_array(ergoname_name_bytes));
-            outBoxBuilder.set_register_value(6, wasm.Constant.from_i64(wasm.I64.from_str(expected_amount.toString())));
-            outBoxBuilder.set_register_value(7, wasm.Constant.from_byte_array(reciever_address_bytes));
-
-            try {
-                outputCandidates.add(outBoxBuilder.build());
-            } catch (e) {
-                console.log(`building error: ${e}`);
-                throw e;
-            }
-            console.log(`utxosvalue: ${utxosValue.toString()}`);
-
-            const txBuilder = wasm.TxBuilder.new(
-                boxSelection,
-                outputCandidates,
-                creationHeight,
-                wasm.TxBuilder.SUGGESTED_TX_FEE(),
-                wasm.Address.from_base58(changeAddr),
-                wasm.BoxValue.SAFE_USER_MIN());
-            const dataInputs = new wasm.DataInputs();
-            txBuilder.set_data_inputs(dataInputs);
-
-            console.log(txBuilder.build().to_json());
-
-            const tx = parseTransactionData(txBuilder.build().to_json());
-
-            console.log(`tx: ${JSONBigInt.stringify(tx)}`);
-            console.log(`original id: ${tx.id}`);
-
-            const correctTx = parseTransactionData(wasm.UnsignedTransaction.from_json(JSONBigInt.stringify(tx)).to_json());
-            console.log(`correct tx: ${JSONBigInt.stringify(correctTx)}`);
-            console.log(`new id: ${correctTx.id}`);
-            
-            correctTx.inputs = correctTx.inputs.map(box => {
-                console.log(`box: ${JSONBigInt.stringify(box)}`);
-                const fullBoxInfo = utxos.find(utxo => utxo.boxId === box.boxId);
-                return {
-                    ...fullBoxInfo,
-                    extension: {}
-                };
-            });
-            console.log(`${JSONBigInt.stringify(correctTx)}`);
-
-            async function signTx(txToBeSigned) {
-                try {
-                    return await ergo.sign_tx(txToBeSigned);
-                } catch (err) {
-                    const msg = `[signTx] Error: ${JSON.stringify(err)}`;
-                    console.error(msg, err);
-                    return null;
-                }
-            }
-
-            async function submitTx(txToBeSubmitted) {
-                try {
-                    return await ergo.submit_tx(txToBeSubmitted);
-                } catch (err) {
-                    const msg = `[submitTx] Error: ${JSON.stringify(err)}`;
-                    console.error(msg, err);
-                    return null;
-                }
-            }
-
-            async function processTx(txToBeProcessed) {
-                const msg = s => {
-                    console.log('[processTx]', s);
-                };
-                const signedTx = await signTx(txToBeProcessed);
-                if (!signedTx) {
-                    console.log(`No signed tx`);
-                    return null;
-                }
-                let ouput_one_box_id = signedTx.outputs[0].boxId;
-                msg("Transaction signed - awaiting submission");
-                const txId = await submitTx(signedTx);
-                if (!txId) {
-                    console.log(`No submotted tx ID`);
-                    return null;
-                }
-                msg("Transaction submitted - thank you for your donation!");
-                return [txId, ouput_one_box_id];
-            }
-
-            let tx_info = await processTx(correctTx).then(tx_info => {
-                return tx_info;
-            });
-            return tx_info;
-        });
-        return tx_info;
-    });
-    return tx_info;
-}
-
-function parseTransactionData(str) {
-    let json = JSONBigInt.parse(str);
-    return {
-        id: json.id,
-        inputs: json.inputs,
-        dataInputs: json.dataInputs,
-        outputs: json.outputs.map(output => parseUTXO(output)),
-    }
-}
-
-function parseUTXO(json) {
-    var newJson = { ...json };
-    if (newJson.assets === null) {
-        newJson.assets = [];
-    }
-    return {
-        boxId: newJson.boxId,
-        value: newJson.value.toString(),
-        ergoTree: newJson.ergoTree,
-        assets: newJson.assets.map(asset => ({
-            tokenId: asset.tokenId,
-            amount: asset.amount.toString(),
-        })),
-        additionalRegisters: newJson.additionalRegisters,
-        creationHeight: newJson.creationHeight,
-        transactionId: newJson.transactionId,
-        index: newJson.index
-    };
+async function getCurrentHeight(explorerUrl = DEFAULT_EXPLORER_URL) {
+    let url = `${explorerUrl}/api/v1/blocks?limit=1`;
+    let response = await fetch(url);
+    let json = await response.json();
+    return json.total;
 }

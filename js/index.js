@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const GRAPH_QL_URL = "https://gql-testnet.ergoplatform.com/";
-const MINT_ADDRESS = "3WxtPsqQVhdwQYA6BPGkfzo9y4vXoNNViZeguc3tJuxPo1XrheUp";
+const BASE_GRAPHQL_URL = "https://gql-testnet.ergoplatform.com/";
+const ERGONAMES_MINT_ADDRESS = "3WxtPsqQVhdwQYA6BPGkfzo9y4vXoNNViZeguc3tJuxPo1XrheUp";
 
 const getGraphQlHeaders = () => {
     return {
@@ -10,115 +10,107 @@ const getGraphQlHeaders = () => {
     };
 }
 
-const retrieveTokenData = async (ergoname, endpoint = GRAPH_QL_URL) => {
+
+
+const makeGraphQlRequest = async (data, endpoint = BASE_GRAPHQL_URL) => {
     const headers = getGraphQlHeaders();
-    const graphqlQuery = {
-        "query": `query BlockHeaders($tokenName: String!) { tokens(name: $tokenName) { tokenId } }`,
-        "variables": { tokenName: ergoname }
-    };
     const response = await axios({
         url: endpoint,
         method: 'post',
         headers: headers,
-        data: graphqlQuery
+        data: data
     });
+    return response;
+}
+
+const retrieveTokenData = async (ergoname, endpoint = BASE_GRAPHQL_URL) => {
+    const data = {
+        query: `query BlockHeaders($tokenName: String!) { tokens(name: $tokenName) { tokenId } }`,
+        variables: { tokenName: ergoname }
+    }
+    const response = await makeGraphQlRequest(data, endpoint);
     return response.data.data.tokens;
 }
 
-const getMintAddressOfTokenById = async (token_id, endpoint = GRAPH_QL_URL) => {
-    const headers = getGraphQlHeaders();
-    const graphqlQuery = {
-        "query": `query BlockHeaders($tokenId: String!) { boxes(boxId: $tokenId) { address } }`,
-        "variables": { tokenId: token_id }
-    };
-    const response = await axios({
-        url: endpoint,
-        method: 'post',
-        headers: headers,
-        data: graphqlQuery
-    });
+const getMintAddressOfTokenById = async (token_id, endpoint = BASE_GRAPHQL_URL) => {
+    const data = {
+        query: `query BlockHeaders($tokenId: String!) { boxes(boxId: $tokenId) { address } }`,
+        variables: { tokenId: token_id }
+    }
+    const response = await makeGraphQlRequest(data, endpoint);
     return response.data.data.boxes[0].address;
 }
 
-const getCorrectToken = async (name, endpoint = GRAPH_QL_URL) => {
+const getCorrectToken = async (name, endpoint = BASE_GRAPHQL_URL) => {
     let tokenData = await retrieveTokenData(name, endpoint);
     for (let i = 0; i<tokenData.length; i++) {
         let tokenId = tokenData[i].tokenId;
         let tokenMintAddress = await getMintAddressOfTokenById(tokenId, endpoint);
-        if (tokenMintAddress == MINT_ADDRESS) {
+        if (tokenMintAddress == ERGONAMES_MINT_ADDRESS) {
             return tokenId;
         }
     };
     return null;
 }
 
-const getCurrentTokenAddress = async (tokenId, endpoint = GRAPH_QL_URL) => {
-    const headers = getGraphQlHeaders();
-    const graphqlQuery = {
-        "query": `query BlockHeaders($tokenId: String!) { boxes(tokenId: $tokenId) { address } }`,
-        "variables": { tokenId: tokenId }
-    };
-    const response = await axios({
-        url: endpoint,
-        method: 'post',
-        headers: headers,
-        data: graphqlQuery
-    });
+const getCurrentTokenAddress = async (tokenId, endpoint = BASE_GRAPHQL_URL) => {
+    const data = {
+        query: `query BlockHeaders($tokenId: String!) { boxes(tokenId: $tokenId) { address } }`,
+        variables: { tokenId: tokenId }
+    }
+    const response = await makeGraphQlRequest(data, endpoint);
     return response.data.data.boxes[0].address;
 }
 
-const getTokenRegistrationBox = async (tokenId, endpoint = GRAPH_QL_URL) => {
-    const headers = getGraphQlHeaders();
-    const graphqlQuery = {
-        "query": `query BlockHeaders($tokenId: String!) { tokens(tokenId: $tokenId) { box { boxId creationHeight address transactionId } } }`,
-        "variables": { tokenId: tokenId }
-    };
-    const response = await axios({
-        url: endpoint,
-        method: 'post',
-        headers: headers,
-        data: graphqlQuery
-    });
+const getTokenRegistrationBox = async (tokenId, endpoint = BASE_GRAPHQL_URL) => {
+    const data = {
+        query: `query BlockHeaders($tokenId: String!) { tokens(tokenId: $tokenId) { box { boxId creationHeight address transactionId } } }`,
+        variables: { tokenId: tokenId }
+    }
+    const response = await makeGraphQlRequest(data, endpoint);
     return response.data.data.tokens;
 }
 
-const getBlockInfoByHeight = async (height, endpoint = GRAPH_QL_URL) => {
-    const headers = getGraphQlHeaders();
-    const graphqlQuery = {
-        "query": `query BlockHeaders($height: Int!) { blocks(height: $height) { timestamp headerId } }`,
-        "variables": { height: height }
-    };
-    const response = await axios({
-        url: endpoint,
-        method: 'post',
-        headers: headers,
-        data: graphqlQuery
-    });
+const getBlockInfoByHeight = async (height, endpoint = BASE_GRAPHQL_URL) => {
+    const data = {
+        query: `query BlockHeaders($height: Int!) { blocks(height: $height) { timestamp headerId } }`,
+        variables: { height: height }
+    }
+    const response = await makeGraphQlRequest(data, endpoint);
     return response.data.data.blocks[0];
 }
 
-const reformatErgonameInput = (name) => {
+const getTransactionInputRegisters = async (transactionId, endpoint = BASE_GRAPHQL_URL) => {
+    const data = {
+        query: `query BlockHeaders($transactionId: String!) { transactions(transactionId: $transactionId) { inputs { box { additionalRegisters } } } }`,
+        variables: { transactionId: transactionId }
+    }
+    const response = await makeGraphQlRequest(data, endpoint);
+    return response.data.data.transactions[0].inputs;
+}
+
+export const reformatErgonameInput = (name) => {
     if (name.startsWith("~")) {
         name = name.substring(1);
     }
     return name;
 }
 
-export const resolveErgoname = async (name, endpoint = GRAPH_QL_URL) => {
+export const resolveErgoname = async (name, endpoint = BASE_GRAPHQL_URL) => {
     name = reformatErgonameInput(name);
     let tokenId = await getCorrectToken(name, endpoint);
     if (tokenId == null) {
-        return null;
+        return { registered: false, tokenId: null, tokenAddress: null };
     }
     let tokenAddress = await getCurrentTokenAddress(tokenId, endpoint);
-    return { tokenId: tokenId, tokenAddress: tokenAddress };
+    return { registered: true, tokenId: tokenId, tokenAddress: tokenAddress };
 }
 
-export const resolveErgonameRegistrationInformation = async (name, endpoint = GRAPH_QL_URL) => {
+export const resolveErgonameRegistrationInformation = async (name, endpoint = BASE_GRAPHQL_URL) => {
     name = reformatErgonameInput(name);
     let tokenId = await getCorrectToken(name, endpoint);
     if (tokenId == null) {
-        return null;
+        return { registered: false, tokenId: null, boxId: null, transactionId: null, address: null, blockId: null, height: null, timestamp: null, registerPrice: null, royalty: null }
     }
     let tokenRegistrationBox = await getTokenRegistrationBox(tokenId, endpoint);
     let creationHeight = tokenRegistrationBox[0].box.creationHeight;
@@ -127,10 +119,15 @@ export const resolveErgonameRegistrationInformation = async (name, endpoint = GR
     let tokenRegistrationBlock = await getBlockInfoByHeight(creationHeight, endpoint);
     let timestamp = tokenRegistrationBlock.timestamp;
     let blockId = tokenRegistrationBlock.headerId;
-    return { tokenId: tokenId, boxId: boxId, address: address, height: creationHeight, timestamp: timestamp, blockId: blockId };
+    let transactionId = tokenRegistrationBox[0].box.transactionId;
+    let inputRegisters = await getTransactionInputRegisters(transactionId, endpoint);
+    let royalty = inputRegisters[0].box.additionalRegisters.R4;
+    let amountSpend = inputRegisters[1].box.additionalRegisters.R5;
+    // Todo: Decode R4 to get royalty + R6 to get amount spent
+    return { registered: true, tokenId: tokenId, boxId: boxId, transactionId: transactionId, address: address, blockId: blockId, height: creationHeight, timestamp: timestamp, registerPrice: amountSpend, royalty: royalty };
 }
 
-export const checkAlreadyRegistered = async (name, endpoint = GRAPH_QL_URL) => {
+export const checkAlreadyRegistered = async (name, endpoint = BASE_GRAPHQL_URL) => {
     name = reformatErgonameInput(name);
     let tokenData = await resolveErgoname(name, endpoint);
     if (tokenData == null) {
@@ -139,7 +136,7 @@ export const checkAlreadyRegistered = async (name, endpoint = GRAPH_QL_URL) => {
     return true;
 }
 
-export const checkNameValid = async (name) => {
+export const checkNameValid = (name) => {
     name = reformatErgonameInput(name);
     for (let i=0; i<name.length; i++) {
         let charCode = name.charCodeAt(i);
