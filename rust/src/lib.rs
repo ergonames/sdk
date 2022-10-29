@@ -3,13 +3,13 @@ use serde_json::{Value, json};
 use anyhow::{Result, Ok};
 use reqwest::{blocking::Client};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ResolveData {
     pub token_id: String,
     pub token_address: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct RegistrationData {
     pub token_id: String,
     pub box_id: String,
@@ -205,7 +205,6 @@ pub fn check_ergoname_registration_information(name: &str, endpoint: Option<Stri
         return None;
     }
     let input_registers: Value = input_registers.unwrap();
-    // TODO: Properly parse register information
     let royalty_raw: String = input_registers["data"]["transactions"][0]["inputs"][0]["box"]["additionalRegisters"]["R4"].to_string();
     let amount_spend_raw: String = input_registers["data"]["transactions"][0]["inputs"][1]["box"]["additionalRegisters"]["R5"].to_string();
     let registers_json: String = format!("{{\"R4\": {}, \"R5\": {}}}", royalty_raw, amount_spend_raw);
@@ -264,4 +263,45 @@ pub fn check_name_valid(name: &str) -> bool {
         }
     }
     return true;
+}
+
+// write tests
+#[cfg(test)]
+mod tests {
+    use crate::*;
+
+    const NAME: &str = "~paymentaddressparam";
+    const NULL_NAME: &str = "nullname";
+    const J5TL_ADDRESS: &str = "3WwKzFjZGrtKAV7qSCoJsZK9iJhLLrUa3uwd4yw52bVtDVv6j5TL";
+
+    #[test]
+    fn test_resolve_ergoname() {
+        let resolved_data: ResolveData = resolve_ergoname(NAME, None).unwrap();
+        assert_eq!(resolved_data.token_id, "f2fb40441f15cb8d0d57627188aff4e9edaa902c4cb65662c428588d8d2206c5"); 
+        assert_eq!(resolved_data.token_address, J5TL_ADDRESS);
+    }
+
+    #[test]
+    fn test_resolve_ergoname_null() {
+        assert_eq!(resolve_ergoname(NULL_NAME, None), None);
+    }
+
+    #[test]
+    fn test_check_ergoname_registration_information() {
+        let registration_data: RegistrationData = check_ergoname_registration_information(NAME, None).unwrap();
+        assert_eq!(registration_data.token_id, "f2fb40441f15cb8d0d57627188aff4e9edaa902c4cb65662c428588d8d2206c5");
+        assert_eq!(registration_data.box_id, "63e300f59c070cdb3f3046c8010469745d4d5e3fcec229c84c306b7ffa3f39e2");
+        assert_eq!(registration_data.transaction_id, "0181f040d19f8a4000ea867ac359194bc144f7ad41e759d0c9b8afabab63c98e");
+        assert_eq!(registration_data.address, J5TL_ADDRESS);
+        assert_eq!(registration_data.block_id, "9c343f5f5d76242a5e4457d87cfa115f882aa54bc6af9ac3b0ec8ec78cb982cd");
+        assert_eq!(registration_data.height, 71552);
+        assert_eq!(registration_data.timestamp, 1666732782576);
+        assert_eq!(registration_data.price, 3000000);
+        assert_eq!(registration_data.royalty, 20);
+    }
+
+    #[test]
+    fn test_check_ergoname_registration_information_null() {
+        assert_eq!(check_ergoname_registration_information(NULL_NAME, None), None);
+    }
 }
