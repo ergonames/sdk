@@ -89,7 +89,11 @@ const getTransactionInputRegisters = async (transactionId, endpoint = BASE_GRAPH
 
 const checkForInvalidCharacters = (name) => {
     const regex = /^[a-z0-9._-]+$/;
-    return regex.test(name);
+    if (regex.test(name) && !name.startsWith(".") && !name.startsWith("_") && !name.startsWith("-")) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 export const reformatErgonameInput = (name) => {
