@@ -1,4 +1,5 @@
 use ergo_lib::ergotree_ir::{chain::ergo_box::{NonMandatoryRegisters}, mir::constant::{Literal, TryExtractInto, Constant}};
+use regex::Regex;
 use serde_json::{Value, json};
 use anyhow::{Result, Ok};
 use reqwest::{blocking::Client};
@@ -145,11 +146,9 @@ fn get_correct_token(name: &str, endpoint: Option<String>) -> Option<String> {
 
 /// Reformats the input to ErgoName standard format
 pub fn reformat_ergoname_input(name: &str) -> String {
-    if name.starts_with("~") {
-        let name: String = name.replace("~", "");
-        return name;
-    }
-    name.to_string()
+    let name: String = name.replace("~", "");
+    let name: String = name.to_lowercase();
+    return name;
 }
 
 /// Resolved token data for the given ErgoName with token ID and current token address
@@ -241,26 +240,21 @@ pub fn check_already_registered(name: &str, endpoint: Option<String>) ->  bool {
 /// Checks if the input name is valid according to ErgoName standards
 pub fn check_name_valid(name: &str) -> bool {
     let name: String = reformat_ergoname_input(name);
-    for c in name.chars() {
-        let char_code: u32 = c as u32;
-        if char_code <= 44 {
-            return false;
-        }
-        else if char_code == 47 {
-            return false;
-        }
-        else if char_code >= 58 && char_code <= 94 {
-            return false;
-        }
-        else if char_code == 96 {
-            return false;
-        }
-        else if char_code >= 123 && char_code <= 125 {
-            return false;
-        }
-        else if char_code >= 127 {
-            return false;
-        }
+    let reg: Regex = regex::Regex::new(r"^[a-z0-9._-]+$").unwrap();
+    if name.len() > 20 {
+        return false;
+    }
+    if !reg.is_match(&name) {
+        return false;
+    }
+    if name.starts_with(".") || name.ends_with(".") {
+        return false;
+    }
+    if name.starts_with("-") || name.ends_with("-") {
+        return false;
+    }
+    if name.starts_with("_") || name.ends_with("_") {
+        return false;
     }
     return true;
 }
