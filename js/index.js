@@ -10,8 +10,6 @@ const getGraphQlHeaders = () => {
     };
 }
 
-
-
 const makeGraphQlRequest = async (data, endpoint = BASE_GRAPHQL_URL) => {
     const headers = getGraphQlHeaders();
     const response = await axios({
@@ -89,10 +87,16 @@ const getTransactionInputRegisters = async (transactionId, endpoint = BASE_GRAPH
     return response.data.data.transactions[0].inputs;
 }
 
+const checkForInvalidCharacters = (name) => {
+    const regex = /^[a-z0-9._-]+$/;
+    return regex.test(name);
+}
+
 export const reformatErgonameInput = (name) => {
     if (name.startsWith("~")) {
         name = name.substring(1);
     }
+    name = name.toLowerCase();
     return name;
 }
 
@@ -138,21 +142,11 @@ export const checkAlreadyRegistered = async (name, endpoint = BASE_GRAPHQL_URL) 
 
 export const checkNameValid = (name) => {
     name = reformatErgonameInput(name);
-    for (let i=0; i<name.length; i++) {
-        let charCode = name.charCodeAt(i);
-        if (charCode <= 44) {
-            return false;
-        } else if (charCode == 47) {
-            return false;
-        } else if (charCode >= 58 && charCode <= 94) {
-            return false;
-        } else if (charCode == 96) {
-            return false;
-        } else if (charCode >= 123 && charCode <= 125) {
-            return false;
-        } else if (charCode >= 127) {
-            return false;
-        }
+    if (name.length === 0 || name.length > 20) {
+        return false;
+    }
+    if (!checkForInvalidCharacters(name)) {
+        return false;
     }
     return true;
 }
