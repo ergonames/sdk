@@ -1,6 +1,6 @@
 # ErgoNames SDKs
 
-SDKs are under a major rewrite.  The JS SDK is updated to utilize the Graphql server. Rust, Python, and Scala still need to be rewritten with new changes. The Tx-Lib is being rewritten to utilize the Fleet SDK.
+SDKs are under a major rewrite.  The JS and Rust SDKs are updated to utilize the Graphql server. Python and Scala still need to be rewritten with new changes. The Tx-Lib has been rewritten to utilize the Fleet SDK.
 
 Roadmap:
 - [x] JS SDK - Graphql
