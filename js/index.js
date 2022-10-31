@@ -89,7 +89,7 @@ const getTransactionInputRegisters = async (transactionId, endpoint = BASE_GRAPH
 
 const checkForInvalidCharacters = (name) => {
     const regex = /^[a-z0-9._-]+$/;
-    if (regex.test(name) && !name.startsWith(".") && !name.startsWith("_") && !name.startsWith("-")) {
+    if (regex.test(name) && !name.startsWith(".") && !name.startsWith("_") && !name.startsWith("-") && !name.endsWith(".") && !name.endsWith("_") && !name.endsWith("-")) {
         return true;
     } else {
         return false;
