@@ -1,4 +1,4 @@
-import { ErgoAddress, OutputBuilder, SColl, SByte, SConstant, TransactionBuilder } from "@fleet-sdk/core";
+import { ErgoAddress, OutputBuilder, SColl, SByte, SConstant, TransactionBuilder, RECOMMENDED_MIN_FEE_VALUE } from "@fleet-sdk/core";
 
 const DEFAULT_EXPLORER_URL = "https://api-testnet.ergoplatform.com";
 const ERGONAMES_CONTRACT_ADDRESS = "2QSobRecPvrMVpdNVdqiEcDjCoZYyMCXRwh8cA8M5qx3rwiuQA5bifAzghk";
@@ -6,7 +6,7 @@ const ERGONAMES_CONTRACT_ADDRESS = "2QSobRecPvrMVpdNVdqiEcDjCoZYyMCXRwh8cA8M5qx3
 export async function sendTransaction(name, receiverAddress, explorerUrl = DEFAULT_EXPLORER_URL) {
     let currentHeight = await getCurrentHeight(explorerUrl);
     let amountToSend = 1000000 * 2;
-    let transactionFee = 1100000;
+    let transactionFee = RECOMMENDED_MIN_FEE_VALUE;
     let totalAmount = amountToSend + transactionFee;
     let inputs = await ergo.get_utxos(totalAmount);
 
