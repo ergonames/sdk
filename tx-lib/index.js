@@ -6,7 +6,9 @@ const ERGONAMES_CONTRACT_ADDRESS = "2QSobRecPvrMVpdNVdqiEcDjCoZYyMCXRwh8cA8M5qx3
 export async function sendTransaction(name, receiverAddress, explorerUrl = DEFAULT_EXPLORER_URL) {
     let currentHeight = await getCurrentHeight(explorerUrl);
     let amountToSend = 1000000 * 2;
-    let inputs = await ergo.get_utxos(amountToSend);
+    let transactionFee = 1100000;
+    let totalAmount = amountToSend + transactionFee;
+    let inputs = await ergo.get_utxos(totalAmount);
 
     let receiverErgoAddress = ErgoAddress.fromBase58(String(receiverAddress));
     let receiverErgoTree = receiverErgoAddress.ergoTree;
