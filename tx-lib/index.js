@@ -1,14 +1,12 @@
-import { ErgoAddress, OutputBuilder, SColl, SByte, SConstant, TransactionBuilder, RECOMMENDED_MIN_FEE_VALUE } from "@fleet-sdk/core";
+import { ErgoAddress, OutputBuilder, SColl, SByte, SConstant, SLong, TransactionBuilder } from "@fleet-sdk/core";
 
 const DEFAULT_EXPLORER_URL = "https://api-testnet.ergoplatform.com";
 const ERGONAMES_CONTRACT_ADDRESS = "2QSobRecPvrMVpdNVdqiEcDjCoZYyMCXRwh8cA8M5qx3rwiuQA5bifAzghk";
 
 export async function sendTransaction(name, receiverAddress, explorerUrl = DEFAULT_EXPLORER_URL) {
     let currentHeight = await getCurrentHeight(explorerUrl);
-    let amountToSend = 1000000 * 2;
-    let transactionFee = RECOMMENDED_MIN_FEE_VALUE;
-    let totalAmount = BigInt(amountToSend) + transactionFee;
-    let inputs = await ergo.get_utxos(totalAmount);
+    let amountToSend = 1000000 + (1000000 * 2);
+    let inputs = await ergo.get_utxos(amountToSend);
 
     let receiverErgoAddress = ErgoAddress.fromBase58(String(receiverAddress));
     let receiverErgoTree = receiverErgoAddress.ergoTree;
@@ -19,7 +17,7 @@ export async function sendTransaction(name, receiverAddress, explorerUrl = DEFAU
         .to(new OutputBuilder(amountToSend, ERGONAMES_CONTRACT_ADDRESS)
             .setAdditionalRegisters({
                 R4: SConstant(SColl(SByte, Buffer.from(name, "utf-8"))).toString("hex"),
-                R5: receiverErgoTree,
+                R6: receiverErgoTree,
             })
         )
         .sendChangeTo(receiverAddress)
@@ -27,9 +25,8 @@ export async function sendTransaction(name, receiverAddress, explorerUrl = DEFAU
         .build("EIP-12");
     
     let signedTransaction = await ergo.sign_tx(unsignedTransaction);
-    let outputZeroBoxId = signedTransaction.outputs[0].boxId;
     let txInfo = await ergo.submit_tx(signedTransaction);    
-    return { txId: txInfo, boxId: outputZeroBoxId };
+    return { txId: txInfo };
 }
 
 async function getCurrentHeight(explorerUrl = DEFAULT_EXPLORER_URL) {
