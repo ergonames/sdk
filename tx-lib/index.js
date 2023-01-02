@@ -7,7 +7,7 @@ export async function sendTransaction(name, receiverAddress, explorerUrl = DEFAU
     let currentHeight = await getCurrentHeight(explorerUrl);
     let amountToSend = 1000000 * 2;
     let transactionFee = RECOMMENDED_MIN_FEE_VALUE;
-    let totalAmount = amountToSend + transactionFee;
+    let totalAmount = BigInt(amountToSend) + transactionFee;
     let inputs = await ergo.get_utxos(totalAmount);
 
     let receiverErgoAddress = ErgoAddress.fromBase58(String(receiverAddress));
