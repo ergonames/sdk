@@ -1,7 +1,7 @@
 import { ErgoAddress, OutputBuilder, SColl, SByte, SConstant, SLong, TransactionBuilder } from "@fleet-sdk/core";
 
 const DEFAULT_EXPLORER_URL = "https://api-testnet.ergoplatform.com";
-const ERGONAMES_CONTRACT_ADDRESS = "gyGWQNQZJQ1qvJobi3aP6XGPd8vSAKAJwZowKLMhFQowQjCToww199LT2p7tpeZzJaWDfCeYUhWsw2qaEhCbpcxXpb898WPGz7LxKTWrscMrw8LLeJ6k7UTXDWznrnmkidBbXKVwGfCaHuUyyBBdTyf5rZREH1hw2bdky4hbGnDwjCVpsGnpNgY1ASwwsiDJGJ8GXyvfaZbuT5PaNKYqZxLBbUzRR2bLvm2aVEEBh5AWG77Mzy54nVxMAh1omNRgR8uf2MrMzficmqDPF9hrrk52fDyw6ixxMpwoMoaMovcqkhE3zreWdq3QetW758WPCTu6cEGLMhfMXXqB7jaCh3STPqtp8YayvXNcYBiStFTh2gfG9MSK6fdDdMPZ3QVN1gEhCkmuV2jF713JMRLaWiXTZTHTBr9XM6ympxNDGJpgVWb";
+const ERGONAMES_CONTRACT_ADDRESS = "2QSobRecPvrMVpdNVdqiEcDjCoZYyMCXRwh8cA8M5qx3rwiuQA5bifAzghk";
 
 export async function sendTransaction(price, name, receiverAddress, explorerUrl = DEFAULT_EXPLORER_URL) {
     let currentHeight = await getCurrentHeight(explorerUrl);
@@ -17,8 +17,7 @@ export async function sendTransaction(price, name, receiverAddress, explorerUrl 
         .to(new OutputBuilder(amountToSend, ERGONAMES_CONTRACT_ADDRESS)
             .setAdditionalRegisters({
                 R4: SConstant(SColl(SByte, Buffer.from(name, "utf-8"))).toString("hex"),
-                R5: SConstant(SLong(price)).toString("hex"),
-                R6: receiverErgoTree,
+                R5: receiverErgoTree,
             })
         )
         .sendChangeTo(receiverAddress)
