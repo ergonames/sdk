@@ -3,13 +3,14 @@
 ### Example for resolving an ergoname
 
 ```rust
-let name: &str = "~balb";
-let address: Option<String> = ergonames::resolve_ergoname(name, None);
+let name: &str = "mgpai";
+let address = ergonames::resolve_ergoname(name);
 ```
 
 ### Example for address lookup
 
 ```rust
-let address: &str = "3WwKzFjZGrtKAV7qSCoJsZK9iJhLLrUa3uwd4yw52bVtDVv6j5TL";
-let token_list: Option<Vec<Token>> = ergonames::reverse_search(address, None);
+let name: &str = "mgpai";
+let address = ergoname_owner(name);
+```
 ```
